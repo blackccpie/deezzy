@@ -35,6 +35,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_C_FLAGS}")
 
 set (sources_list
 src/main.cpp
+src/deezer_wrapper.cpp
 )
 
 include_directories("${CMAKE_SOURCE_DIR}/src" ${DEEZER_SDK_INCLUDE_DIR})

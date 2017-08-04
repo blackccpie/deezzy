@@ -37,6 +37,9 @@ class deezer_wrapper::deezer_wrapper_impl
 private:
     struct wrapper_context
     {
+        const std::string app_id;
+        const std::string product_id;
+        const std::string product_build_id;
         int track_played_count = 0;
         int activation_count = 0;
         bool is_shuffle_mode = false;
@@ -50,11 +53,11 @@ public:
     deezer_wrapper_impl(    const std::string& app_id,
                             const std::string& product_id,
                             const std::string& product_build_id,
-                            bool print_version ) : m_config{0}
+                            bool print_version ) : m_config{0}, m_ctx{ app_id, product_id, product_build_id }
     {
-        m_config.app_id            = app_id.c_str();
-        m_config.product_id        = product_id.c_str();
-        m_config.product_build_id  = product_build_id.c_str();
+        m_config.app_id            = m_ctx.app_id.c_str();
+        m_config.product_id        = m_ctx.product_id.c_str();
+        m_config.product_build_id  = m_ctx.product_build_id.c_str();
         m_config.user_profile_path = USER_CACHE_PATH;
         m_config.connect_event_cb  = deezer_wrapper_impl::_static_connect_callback;
 
@@ -68,6 +71,10 @@ public:
             std::cout << "<-- Deezer native SDK Version : " << dz_connect_get_build_id() << std::endl;
         }
     }
+    void register_observer( std::shared_ptr<deezer_wrapper::observer> observer )
+    {
+        m_observer = observer;
+    }
     void set_content( const std::string& content )
     {
         m_ctx.content_url = content;
@@ -78,6 +85,10 @@ public:
         std::cout << "LOAD => " << m_ctx.content_url << std::endl;
         dz_player_load( m_ctx.dzplayer, nullptr, nullptr,
                         m_ctx.content_url.c_str() );
+    }
+    bool active()
+    {
+        return m_ctx.activation_count > 0;
     }
     void connect()
     {
@@ -173,6 +184,82 @@ public:
             m_ctx.dzconnect = nullptr;
         }
     }
+    void playback_start_or_stop()
+    {
+        if ( !m_ctx.is_playing )
+        {
+            std::cout << "PLAY track n° " << m_ctx.track_played_count << " of => " << m_ctx.content_url << std::endl;
+            dz_player_play( m_ctx.dzplayer, nullptr, nullptr,
+                            DZ_PLAYER_PLAY_CMD_START_TRACKLIST,
+                            DZ_INDEX_IN_QUEUELIST_CURRENT );
+
+        }
+        else
+        {
+            std::cout << "STOP => " << m_ctx.content_url << std::endl;
+            dz_player_stop( m_ctx.dzplayer, nullptr, nullptr );
+        }
+    }
+    void playback_pause_or_resume()
+    {
+        if ( m_ctx.is_playing )
+        {
+            std::cout << "PAUSE track n° " << m_ctx.track_played_count << " of => " << m_ctx.content_url << std::endl;
+            dz_player_pause( m_ctx.dzplayer, nullptr, nullptr );
+        }
+        else
+        {
+            std::cout << "RESUME track n° " << m_ctx.track_played_count << " of => " << m_ctx.content_url << std::endl;
+            dz_player_resume( m_ctx.dzplayer, nullptr, nullptr );
+        }
+    }
+    void playback_toogle_repeat()
+    {
+        switch( m_ctx.repeat_mode )
+        {
+            case DZ_QUEUELIST_REPEAT_MODE_OFF:
+                m_ctx.repeat_mode = DZ_QUEUELIST_REPEAT_MODE_ONE;
+                break;
+            case DZ_QUEUELIST_REPEAT_MODE_ONE:
+                m_ctx.repeat_mode = DZ_QUEUELIST_REPEAT_MODE_ALL;
+                break;
+            case DZ_QUEUELIST_REPEAT_MODE_ALL:
+                m_ctx.repeat_mode = DZ_QUEUELIST_REPEAT_MODE_OFF;
+                break;
+        }
+
+        std::cout << "REPEAT mode => " << m_ctx.repeat_mode << std::endl;
+
+        dz_player_set_repeat_mode(  m_ctx.dzplayer, nullptr, nullptr,
+                                    m_ctx.repeat_mode );
+    }
+    void playback_toogle_random()
+    {
+        m_ctx.is_shuffle_mode = !m_ctx.is_shuffle_mode;
+
+        std::cout << "SHUFFLE mode => " << std::string( m_ctx.is_shuffle_mode ? "ON" : "OFF" ) << std::endl;
+
+        dz_player_enable_shuffle_mode(  m_ctx.dzplayer, nullptr, nullptr,
+                                        m_ctx.is_shuffle_mode );
+    }
+    void playback_next()
+    {
+        std::cout << "NEXT => " << m_ctx.content_url << std::endl;
+        dz_player_play( m_ctx.dzplayer, nullptr, nullptr,
+                        DZ_PLAYER_PLAY_CMD_START_TRACKLIST,
+                        DZ_INDEX_IN_QUEUELIST_NEXT );
+    }
+    void playback_previous()
+    {
+        std::cout << "PREVIOUS => " << m_ctx.content_url << std::endl;
+        dz_player_play( m_ctx.dzplayer, nullptr, nullptr,
+                        DZ_PLAYER_PLAY_CMD_START_TRACKLIST,
+                        DZ_INDEX_IN_QUEUELIST_PREVIOUS );
+    }
+    void play_audioads()
+    {
+        dz_player_play_audioads( m_ctx.dzplayer, nullptr, nullptr );
+    }
 private:
     // callback for dzconnect events
     static void _static_connect_callback(   dz_connect_handle handle,
@@ -184,12 +271,14 @@ private:
     void _connect_callback( dz_connect_handle handle,
                             dz_connect_event_handle event )
     {
-        dz_connect_event_t type = dz_connect_event_get_type( event );
+        auto type = dz_connect_event_get_type( event );
+        connect_event output_event;
 
-        switch (type)
+        switch( type )
         {
             case DZ_CONNECT_EVENT_USER_OFFLINE_AVAILABLE:
                 std::cout << "(App:" << &m_ctx << ") ++++ CONNECT_EVENT ++++ USER_OFFLINE_AVAILABLE" << std::endl;
+                output_event = connect_event::user_offline_available;
                 break;
 
             case DZ_CONNECT_EVENT_USER_ACCESS_TOKEN_OK:
@@ -198,50 +287,63 @@ private:
                     szAccessToken = dz_connect_event_get_access_token( event );
                     std::cout << "(App:" << &m_ctx << ") ++++ CONNECT_EVENT ++++ USER_ACCESS_TOKEN_OK Access_token : " << szAccessToken << std::endl;
                 }
+                output_event = connect_event::user_access_token_ok;
                 break;
 
             case DZ_CONNECT_EVENT_USER_ACCESS_TOKEN_FAILED:
                 std::cout << "(App:" << &m_ctx << ") ++++ CONNECT_EVENT ++++ USER_ACCESS_TOKEN_FAILED" << std::endl;
+                output_event = connect_event::user_access_token_failed;
                 break;
 
             case DZ_CONNECT_EVENT_USER_LOGIN_OK:
                 std::cout << "(App:" << &m_ctx << ") ++++ CONNECT_EVENT ++++ USER_LOGIN_OK" << std::endl;
-                // TODO app_load_content();
+                output_event = connect_event::user_login_ok;
                 break;
 
             case DZ_CONNECT_EVENT_USER_NEW_OPTIONS:
                 std::cout << "(App:" << &m_ctx << ") ++++ CONNECT_EVENT ++++ USER_NEW_OPTIONS" << std::endl;
+                output_event = connect_event::user_new_options;
                 break;
 
             case DZ_CONNECT_EVENT_USER_LOGIN_FAIL_NETWORK_ERROR:
                 std::cout << "(App:" << &m_ctx << ") ++++ CONNECT_EVENT ++++ USER_LOGIN_FAIL_NETWORK_ERROR" << std::endl;
+                output_event = connect_event::user_login_fail_network_error;
                 break;
 
             case DZ_CONNECT_EVENT_USER_LOGIN_FAIL_BAD_CREDENTIALS:
                 std::cout << "(App:" << &m_ctx << ") ++++ CONNECT_EVENT ++++ USER_LOGIN_FAIL_BAD_CREDENTIALS" << std::endl;
+                output_event = connect_event::user_login_fail_bad_credentials;
                 break;
 
             case DZ_CONNECT_EVENT_USER_LOGIN_FAIL_USER_INFO:
                 std::cout << "(App:" << &m_ctx << ") ++++ CONNECT_EVENT ++++ USER_LOGIN_FAIL_USER_INFO" << std::endl;
+                output_event = connect_event::user_login_fail_user_info;
                 break;
 
             case DZ_CONNECT_EVENT_USER_LOGIN_FAIL_OFFLINE_MODE:
                 std::cout << "(App:" << &m_ctx << ") ++++ CONNECT_EVENT ++++ USER_LOGIN_FAIL_OFFLINE_MODE" << std::endl;
+                output_event = connect_event::user_login_fail_offline_mode;
                 break;
 
             case DZ_CONNECT_EVENT_ADVERTISEMENT_START:
                 std::cout << "(App:" << &m_ctx << ") ++++ CONNECT_EVENT ++++ ADVERTISEMENT_START" << std::endl;
+                output_event = connect_event::advertisement_start;
                 break;
 
             case DZ_CONNECT_EVENT_ADVERTISEMENT_STOP:
                 std::cout << "(App:" << &m_ctx << ") ++++ CONNECT_EVENT ++++ ADVERTISEMENT_STOP" << std::endl;
+                output_event = connect_event::advertisement_stop;
                 break;
 
             case DZ_CONNECT_EVENT_UNKNOWN:
             default:
                 std::cout << "(App:" << &m_ctx << ") ++++ CONNECT_EVENT ++++ UNKNOWN or default (type = " << type << ")" << std::endl;
+                output_event = connect_event::unknown;
                 break;
         }
+
+        if ( m_observer )
+            m_observer->on_connect_event( output_event );
     }
     // callback for dzplayer events
     static void _static_player_callback(   dz_player_handle handle,
@@ -253,10 +355,11 @@ private:
     void _player_callback(  dz_player_handle handle,
                             dz_player_event_handle event )
     {
-        dz_streaming_mode_t   streaming_mode;
+        dz_streaming_mode_t streaming_mode;
         dz_index_in_queuelist idx;
 
         auto type = dz_player_event_get_type(event);
+        player_event output_event;
 
         if ( !dz_player_event_get_queuelist_context( event, &streaming_mode, &idx ) )
         {
@@ -268,32 +371,37 @@ private:
         {
             case DZ_PLAYER_EVENT_LIMITATION_FORCED_PAUSE:
                 std::cout << "(App:" << &m_ctx << ") ==== PLAYER_EVENT ==== LIMITATION_FORCED_PAUSE for idx: " << idx << std::endl;
+                output_event = player_event::limitation_forced_pause;
                 break;
 
             case DZ_PLAYER_EVENT_QUEUELIST_LOADED:
                 std::cout << "(App:" << &m_ctx << ") ==== PLAYER_EVENT ==== QUEUELIST_LOADED for idx: " << idx << std::endl;
-                //app_playback_start_or_stop();
+                output_event = player_event::queuelist_loaded;
                 break;
 
             case DZ_PLAYER_EVENT_QUEUELIST_NO_RIGHT:
                 std::cout << "(App:" << &m_ctx << ") ==== PLAYER_EVENT ==== QUEUELIST_NO_RIGHT for idx: " << idx << std::endl;
+                output_event = player_event::queuelist_no_right;
                 break;
 
             case DZ_PLAYER_EVENT_QUEUELIST_NEED_NATURAL_NEXT:
                 std::cout << "(App:" << &m_ctx << ") ==== PLAYER_EVENT ==== QUEUELIST_NEED_NATURAL_NEXT for idx: " << idx << std::endl;
+                output_event = player_event::queuelist_need_natural_next;
                 break;
 
             case DZ_PLAYER_EVENT_QUEUELIST_TRACK_NOT_AVAILABLE_OFFLINE:
                 std::cout << "(App:" << &m_ctx << ") ==== PLAYER_EVENT ==== QUEUELIST_TRACK_NOT_AVAILABLE_OFFLINE for idx: " << idx << std::endl;
+                output_event = player_event::queuelist_track_not_available_offline;
                 break;
 
             case DZ_PLAYER_EVENT_QUEUELIST_TRACK_RIGHTS_AFTER_AUDIOADS:
                 std::cout << "(App:" << &m_ctx << ") ==== PLAYER_EVENT ==== QUEUELIST_TRACK_RIGHTS_AFTER_AUDIOADS for idx: " << idx << std::endl;
-                dz_player_play_audioads( m_ctx.dzplayer, nullptr, nullptr );
+                output_event = player_event::queuelist_track_rights_after_audioads;
                 break;
 
             case DZ_PLAYER_EVENT_QUEUELIST_SKIP_NO_RIGHT:
                 std::cout << "(App:" << &m_ctx << ") ==== PLAYER_EVENT ==== QUEUELIST_SKIP_NO_RIGHT for idx: " << idx << std::endl;
+                output_event = player_event::queuelist_skip_no_right;
                 break;
 
             case DZ_PLAYER_EVENT_QUEUELIST_TRACK_SELECTED:
@@ -320,24 +428,29 @@ private:
                         std::cout << "\tnext:" << next_dzapiinfo << std::endl;
                 }
                 m_ctx.track_played_count++;
+                output_event = player_event::queuelist_track_selected;
                 break;
 
             case DZ_PLAYER_EVENT_MEDIASTREAM_DATA_READY:
                 std::cout << "(App:" << &m_ctx << ") ==== PLAYER_EVENT ==== MEDIASTREAM_DATA_READY for idx: " << idx << std::endl;
+                output_event = player_event::mediastream_data_ready;
                 break;
 
             case DZ_PLAYER_EVENT_MEDIASTREAM_DATA_READY_AFTER_SEEK:
                 std::cout << "(App:" << &m_ctx << ") ==== PLAYER_EVENT ==== MEDIASTREAM_DATA_READY_AFTER_SEEK for idx: " << idx << std::endl;
+                output_event = player_event::mediastream_data_ready_after_seek;
                 break;
 
             case DZ_PLAYER_EVENT_RENDER_TRACK_START_FAILURE:
                 std::cout << "(App:" << &m_ctx << ") ==== PLAYER_EVENT ==== RENDER_TRACK_START_FAILURE for idx: " << idx << std::endl;
                 m_ctx.is_playing = false;
+                output_event = player_event::render_track_start_failure;
                 break;
 
             case DZ_PLAYER_EVENT_RENDER_TRACK_START:
                 std::cout << "(App:" << &m_ctx << ") ==== PLAYER_EVENT ==== RENDER_TRACK_START for idx: " << idx << std::endl;
                 m_ctx.is_playing = true;
+                output_event = player_event::render_track_start;
                 break;
 
             case DZ_PLAYER_EVENT_RENDER_TRACK_END:
@@ -347,40 +460,51 @@ private:
                 // Detect if we come from from playing an ad, if yes restart automatically the playback.
                 if (idx == DZ_INDEX_IN_QUEUELIST_INVALID)
                 {
-                    // TODO app_playback_start_or_stop();
+                    std::cout << "NOT VERY SURE ABOUT THIS..." << std::endl;
+                    playback_start_or_stop(); // TODO : not very sure about that...
                 }
+                output_event = player_event::render_track_end;
                 break;
 
             case DZ_PLAYER_EVENT_RENDER_TRACK_PAUSED:
                 std::cout << "(App:" << &m_ctx << ") ==== PLAYER_EVENT ==== RENDER_TRACK_PAUSED for idx: " << idx << std::endl;
                 m_ctx.is_playing = false;
+                output_event = player_event::render_track_paused;
                 break;
 
             case DZ_PLAYER_EVENT_RENDER_TRACK_UNDERFLOW:
                 std::cout << "(App:" << &m_ctx << ") ==== PLAYER_EVENT ==== RENDER_TRACK_UNDERFLOW for idx: " << idx << std::endl;
                 m_ctx.is_playing = false;
+                output_event = player_event::render_track_underflow;
                 break;
 
             case DZ_PLAYER_EVENT_RENDER_TRACK_RESUMED:
                 std::cout << "(App:" << &m_ctx << ") ==== PLAYER_EVENT ==== RENDER_TRACK_RESUMED for idx: " << idx << std::endl;
                 m_ctx.is_playing = true;
+                output_event = player_event::render_track_resumed;
                 break;
 
             case DZ_PLAYER_EVENT_RENDER_TRACK_SEEKING:
                 std::cout << "(App:" << &m_ctx << ") ==== PLAYER_EVENT ==== RENDER_TRACK_SEEKING for idx: " << idx << std::endl;
                 m_ctx.is_playing = false;
+                output_event = player_event::render_track_seeking;
                 break;
 
             case DZ_PLAYER_EVENT_RENDER_TRACK_REMOVED:
                 std::cout << "(App:" << &m_ctx << ") ==== PLAYER_EVENT ==== RENDER_TRACK_REMOVED for idx: " << idx << std::endl;
                 m_ctx.is_playing = false;
+                output_event = player_event::render_track_removed;
                 break;
 
             case DZ_PLAYER_EVENT_UNKNOWN:
             default:
                 std::cout << "(App:" << &m_ctx << ") ==== PLAYER_EVENT ==== UNKNOWN or default (type = " << type << ")" << std::endl;
+                output_event = player_event::unknown;
                 break;
         }
+
+        if ( m_observer )
+            m_observer->on_player_event( output_event );
     }
     static void _static_connect_on_deactivate( void* delegate,
                                         void* operation_userdata,
@@ -411,6 +535,9 @@ private:
         std::cout << "PLAYER deactivated - c = " << m_ctx.activation_count << " with status = " << status << std::endl;
     }
 private:
+
+    std::shared_ptr<deezer_wrapper::observer> m_observer;
+
     dz_connect_configuration m_config;
     wrapper_context m_ctx;
 };
@@ -427,6 +554,11 @@ deezer_wrapper::~deezer_wrapper()
 {
 }
 
+void deezer_wrapper::register_observer( std::shared_ptr<deezer_wrapper::observer> observer )
+{
+    m_pimpl->register_observer( observer );
+}
+
 void deezer_wrapper::set_content( const std::string& content )
 {
     m_pimpl->set_content( content );
@@ -437,6 +569,11 @@ void deezer_wrapper::load_content()
     m_pimpl->load_content();
 }
 
+bool deezer_wrapper::active()
+{
+    return m_pimpl->active();
+}
+
 void deezer_wrapper::connect()
 {
     m_pimpl->connect();
@@ -445,4 +582,39 @@ void deezer_wrapper::connect()
 void deezer_wrapper::disconnect()
 {
     m_pimpl->disconnect();
+}
+
+void deezer_wrapper::playback_start_or_stop()
+{
+    m_pimpl->playback_start_or_stop();
+}
+
+void deezer_wrapper::playback_pause_or_resume()
+{
+    m_pimpl->playback_pause_or_resume();
+}
+
+void deezer_wrapper::playback_toogle_repeat()
+{
+    m_pimpl->playback_toogle_repeat();
+}
+
+void deezer_wrapper::playback_toogle_random()
+{
+    m_pimpl->playback_toogle_random();
+}
+
+void deezer_wrapper::playback_next()
+{
+    m_pimpl->playback_next();
+}
+
+void deezer_wrapper::playback_previous()
+{
+    m_pimpl->playback_previous();
+}
+
+void deezer_wrapper::play_audioads()
+{
+    m_pimpl->play_audioads();
 }
