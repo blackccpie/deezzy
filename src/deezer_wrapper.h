@@ -28,14 +28,27 @@ THE SOFTWARE.
 
 struct dz_connect_configuration;
 
+class deezer_wrapper_exception : public std::runtime_error
+{
+public:
+
+    deezer_wrapper_exception( const std::string& error ) : std::runtime_error( error ) {}
+	virtual ~deezer_wrapper_exception() throw() {}
+};
+
 class deezer_wrapper
 {
 public:
-    deezer_wrapper( bool print_version );
+    deezer_wrapper( const std::string& app_id,
+                    const std::string& product_id,
+                    const std::string& product_build_id,
+    				bool print_version );
+    ~deezer_wrapper();
 
     void set_content( const std::string& content );
+    void load_content();
 
-    void connect( const dz_connect_configuration& config );
+    void connect();
     void disconnect();
 
 private:
