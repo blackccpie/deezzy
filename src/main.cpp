@@ -25,8 +25,8 @@ THE SOFTWARE.
 #include "deezer_wrapper.h"
 
 #include <QtQml>
-#include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QGuiApplication>
 
 #include <iostream>
 
@@ -34,23 +34,40 @@ THE SOFTWARE.
 #define DEEZZY_APPLICATION_NAME    "Deezzy" 	// SET YOUR APPLICATION NAME
 #define DEEZZY_APPLICATION_VERSION "00001"	// SET YOUR APPLICATION VERSION
 
-class deezzy_application_model final : public deezer_wrapper::observer, public std::enable_shared_from_this<deezzy_application_model>
+class DeezzyApp :   public QObject,
+                    public deezer_wrapper::observer
 {
+    Q_OBJECT
 public:
-    deezzy_application_model( const std::shared_ptr<deezer_wrapper>& dzr_wrapper ) : m_dzr_wrapper( dzr_wrapper ) {}
-    void init()
+    DeezzyApp() : m_deezer_wrapper( std::make_shared<deezer_wrapper>(   DEEZZY_APPLICATION_ID,
+                                                                        DEEZZY_APPLICATION_NAME,
+                                                                        DEEZZY_APPLICATION_VERSION,
+                                                                        true /*print_version*/ ) )
     {
-        m_dzr_wrapper->register_observer( shared_from_this() );
     }
-    void connect()
+    Q_INVOKABLE bool connect()
     {
-        m_dzr_wrapper->connect();
+        m_deezer_wrapper->register_observer( this );
+        m_deezer_wrapper->set_content( "dzmedia:///playlist/65275704" );
+        m_deezer_wrapper->connect();
+
+        return true;
     }
-    void set_content( const std::string& content )
+    Q_INVOKABLE bool disconnect()
     {
-        m_dzr_wrapper->set_content( content );
+        m_deezer_wrapper->register_observer( nullptr );
+        m_deezer_wrapper->disconnect();
+
+        return true;
     }
-    void on_connect_event( const deezer_wrapper::connect_event& event ) override
+    Q_INVOKABLE bool toggle_start_stop()
+    {
+        m_deezer_wrapper->playback_start_or_stop();
+
+        return true;
+    }
+private:
+    void on_connect_event( const deezer_wrapper::connect_event& event ) final override
     {
         switch( event )
         {
@@ -63,7 +80,6 @@ public:
             case deezer_wrapper::connect_event::user_access_token_failed:
                 break;
             case deezer_wrapper::connect_event::user_login_ok:
-                m_dzr_wrapper->load_content();
                 break;
             case deezer_wrapper::connect_event::user_login_fail_network_error:
                 break;
@@ -83,7 +99,7 @@ public:
                 break;
         }
     }
-    void on_player_event( const deezer_wrapper::player_event& event ) override
+    void on_player_event( const deezer_wrapper::player_event& event ) final override
     {
         switch( event )
         {
@@ -92,14 +108,14 @@ public:
             case deezer_wrapper::player_event::limitation_forced_pause:
                 break;
             case deezer_wrapper::player_event::queuelist_loaded:
-                m_dzr_wrapper->playback_start_or_stop();
+                //m_deezer_wrapper->playback_start_or_stop();
                 break;
             case deezer_wrapper::player_event::queuelist_no_right:
                 break;
             case deezer_wrapper::player_event::queuelist_track_not_available_offline:
                 break;
             case deezer_wrapper::player_event::queuelist_track_rights_after_audioads:
-                m_dzr_wrapper->play_audioads();
+                //m_deezer_wrapper->play_audioads();
                 break;
             case deezer_wrapper::player_event::queuelist_skip_no_right:
                 break;
@@ -132,29 +148,7 @@ public:
         }
     }
 private:
-    std::shared_ptr<deezer_wrapper> m_dzr_wrapper;
-};
-
-class DeezzyApp : public QObject
-{
-    Q_OBJECT
-public:
-    DeezzyApp()
-    :   m_deezer_wrapper( std::make_shared<deezer_wrapper>( DEEZZY_APPLICATION_ID, DEEZZY_APPLICATION_NAME, DEEZZY_APPLICATION_VERSION, true /*print_version*/ ) ),
-        m_deezzy_app_model( std::make_shared<deezzy_application_model>( m_deezer_wrapper ) )
-    {
-    }
-    Q_INVOKABLE bool connect()
-    {
-        m_deezzy_app_model->init();
-        m_deezzy_app_model->set_content( "dzmedia:///album/44732531" );
-        m_deezzy_app_model->connect();
-
-        return true;
-    }
-private:
     std::shared_ptr<deezer_wrapper> m_deezer_wrapper;
-    std::shared_ptr<deezzy_application_model> m_deezzy_app_model;
 };
 
 int main(int argc, char *argv[])

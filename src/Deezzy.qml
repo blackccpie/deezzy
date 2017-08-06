@@ -34,15 +34,13 @@ ApplicationWindow {
     height: 186
     visible: true
 
-    // MediaPlayer {
-    //     id: player
-    // }
     DeezzyApp
     {
         id: deezzy
-    }
 
-    Component.onCompleted: deezzy.connect();
+        Component.onCompleted: deezzy.connect();
+        Component.onDestruction: deezzy.disconnect();
+    }
 
     Item {
         id: playLogic

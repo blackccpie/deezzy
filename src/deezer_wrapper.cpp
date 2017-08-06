@@ -71,7 +71,7 @@ public:
             std::cout << "<-- Deezer native SDK Version : " << dz_connect_get_build_id() << std::endl;
         }
     }
-    void register_observer( std::shared_ptr<deezer_wrapper::observer> observer )
+    void register_observer( deezer_wrapper::observer* observer )
     {
         m_observer = observer;
     }
@@ -536,7 +536,7 @@ private:
     }
 private:
 
-    std::shared_ptr<deezer_wrapper::observer> m_observer;
+    deezer_wrapper::observer* m_observer = nullptr;
 
     dz_connect_configuration m_config;
     wrapper_context m_ctx;
@@ -554,7 +554,7 @@ deezer_wrapper::~deezer_wrapper()
 {
 }
 
-void deezer_wrapper::register_observer( std::shared_ptr<deezer_wrapper::observer> observer )
+void deezer_wrapper::register_observer( deezer_wrapper::observer* observer )
 {
     m_pimpl->register_observer( observer );
 }

@@ -102,7 +102,8 @@ public:
 
     class observer
     {
-    public:
+    protected:
+        friend class deezer_wrapper;
         virtual void on_connect_event( const deezer_wrapper::connect_event& event ) { /* EMPTY */ }
         virtual void on_player_event( const deezer_wrapper::player_event& event ) { /* EMPTY */ }
     };
@@ -114,7 +115,7 @@ public:
     				bool print_version );
     ~deezer_wrapper();
 
-    void register_observer( std::shared_ptr<deezer_wrapper::observer> observer );
+    void register_observer( deezer_wrapper::observer* observer );
 
     void set_content( const std::string& content );
     void load_content();
