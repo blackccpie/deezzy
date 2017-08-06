@@ -35,11 +35,11 @@ include("${CMAKE_SOURCE_DIR}/cmake/FindDeezer.cmake")
 
 set (sources_list
 main.cpp
-
 deezer_wrapper/deezer_wrapper.cpp
 )
 
 set (headers_list
+DeezzyApp.h
 deezer_wrapper/deezer_wrapper.h
 )
 
