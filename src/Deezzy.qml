@@ -55,11 +55,16 @@ ApplicationWindow {
 
         function init(){
             if(deezzy.playbackState==DeezzyApp.Paused){
-            	deezzy.pause();
+                console.log("DEEZZY STATE IS PAUSED");
+            	deezzy.resume();
             }else if(deezzy.playbackState==DeezzyApp.Playing){
-            	deezzy.play();
-            }else{
+                console.log("DEEZZY STATE IS PLAYING");
+            	deezzy.pause();
+            }else if(deezzy.playbackState==DeezzyApp.Stopped){
+                console.log("DEEZZY STATE IS STOPPED");
                 setIndex(0);
+            }else {
+                console.log("DEEZZY STATE IS UNKNOWN");
             }
         }
 
@@ -80,11 +85,13 @@ ApplicationWindow {
         }
 
         function next(){
-            setIndex(index + 1);
+            //setIndex(index + 1);
+            deezzy.next();
         }
 
         function previous(){
-            setIndex(index - 1);
+            //setIndex(index - 1);
+            deezzy.previous();
         }
 
         function msToTime(duration) {
@@ -101,21 +108,27 @@ ApplicationWindow {
             target: deezzy
 
             onPaused: {
+                console.log("DEEZZY ONPAUSED");
                 playPause.source = "icons/play.png";
             }
 
             onPlaying: {
-                 playPause.source = "icons/pause.png";
+                console.log("DEEZZY ONPLAYING");
+                trackTitle.text = deezzy.metaData.title;
+                trackAlbum.text = deezzy.metaData.albumTitle;
+                coverPic.source = deezzy.metaData.coverArtUrl;
+                playPause.source = "icons/pause.png";
             }
 
             onStopped: {
+                console.log("DEEZZY ONSTOPPED");
                 playPause.source = "icons/play.png";
         		//if (playLogic.mediaPlayer.status == MediaPlayer.EndOfMedia)
         		//    playLogic.next();
             }
 
             onError: {
-                console.log(error+" error string is "+errorString);
+                console.log("DEEZZY ONERROR");
             }
 
         //     onMediaObjectChanged: {
@@ -165,7 +178,7 @@ ApplicationWindow {
 
                         Image {
                             id: coverPic
-                            //source: player.metaData.coverArtUrlLarge ? player.metaData.coverArtUrlLarge : "images/cover.png"
+                            source: deezzy.metaData.coverArtUrl ? deezzy.metaData.coverArtUrl : "images/cover.png"
                             anchors.fill: coverBorder
                             anchors.margins: 2
                         }
@@ -264,7 +277,7 @@ ApplicationWindow {
 
                                 Text {
                                     id: trackTitle
-                                    //text: player.metaData.title ? player.metaData.title : "Song title unavailable"
+                                    text: deezzy.metaData.title ? deezzy.metaData.title : "Song title unavailable"
                                     color: "#eeeeee"
                                     font.family: appFont.name
                                     font.pointSize: 17
@@ -275,7 +288,7 @@ ApplicationWindow {
                                 }
                                 Text {
                                     id: trackAlbum
-                                    //text: player.metaData.albumTitle ? player.metaData.albumTitle : "Song title unavailable"
+                                    text: deezzy.metaData.albumTitle ? deezzy.metaData.albumTitle : "Song title unavailable"
                                     color: "steelblue"
                                     font.family: appFont.name
                                     font.pointSize: 17

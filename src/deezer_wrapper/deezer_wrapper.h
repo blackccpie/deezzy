@@ -40,6 +40,13 @@ class deezer_wrapper
 {
 public:
 
+    struct track_metadata
+    {
+        std::string track_title;
+        std::string album_title;
+        std::string cover_art;
+    };
+
     enum class connect_event
     {
         unknown,                           ///< connect event has not been set yet, not a valid value.
@@ -138,6 +145,8 @@ public:
     void playback_previous();
 
     void play_audioads();
+
+    const track_metadata& current_metadata();
 
 private:
 

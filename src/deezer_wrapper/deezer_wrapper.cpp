@@ -25,6 +25,8 @@ THE SOFTWARE.
 #include "deezer_wrapper.h"
 #include "private_user.h"
 
+#include "third_party/json.hpp"
+
 #include <deezer-connect.h>
 #include <deezer-player.h>
 
@@ -256,6 +258,10 @@ public:
     {
         dz_player_play_audioads( m_ctx.dzplayer, nullptr, nullptr );
     }
+    const deezer_wrapper::track_metadata& current_metadata()
+    {
+        return m_current_metadata;
+    }
 private:
     // callback for dzconnect events
     static void _static_connect_callback(   dz_connect_handle handle,
@@ -279,8 +285,7 @@ private:
 
             case DZ_CONNECT_EVENT_USER_ACCESS_TOKEN_OK:
                 {
-                    const char* szAccessToken;
-                    szAccessToken = dz_connect_event_get_access_token( event );
+                    const char* szAccessToken = dz_connect_event_get_access_token( event );
                     std::cout << "(App:" << &m_ctx << ") ++++ CONNECT_EVENT ++++ USER_ACCESS_TOKEN_OK Access_token : " << szAccessToken << std::endl;
                 }
                 output_event = connect_event::user_access_token_ok;
@@ -406,21 +411,26 @@ private:
                     bool can_pause_unpause;
                     bool can_seek;
                     int  nb_skip_allowed;
-                    const char *selected_dzapiinfo;
-                    const char *next_dzapiinfo;
 
-                    is_preview = dz_player_event_track_selected_is_preview(event);
+                    is_preview = dz_player_event_track_selected_is_preview( event );
 
-                    dz_player_event_track_selected_rights(event, &can_pause_unpause, &can_seek, &nb_skip_allowed);
+                    dz_player_event_track_selected_rights( event, &can_pause_unpause, &can_seek, &nb_skip_allowed );
 
-                    selected_dzapiinfo = dz_player_event_track_selected_dzapiinfo(event);
-                    next_dzapiinfo = dz_player_event_track_selected_next_track_dzapiinfo(event);
+                    auto* selected_dzapiinfo = dz_player_event_track_selected_dzapiinfo( event );
+                    auto* next_dzapiinfo = dz_player_event_track_selected_next_track_dzapiinfo( event );
 
                     std::cout << "(App:" << &m_ctx << ") ==== PLAYER_EVENT ==== QUEUELIST_TRACK_SELECTED for idx: " << idx << " - is_preview: " << is_preview << std::endl;
                     std::cout << "\tcan_pause_unpause:" << can_pause_unpause << " can_seek:" << can_seek << " nb_skip_allowed:" << nb_skip_allowed << std::endl;
-                    if (selected_dzapiinfo)
+                    if ( selected_dzapiinfo )
+                    {
                         std::cout << "\tnow:" << selected_dzapiinfo << std::endl;
-                    if (next_dzapiinfo)
+                        using json = nlohmann::json;
+                        json json_metadata = json::parse( selected_dzapiinfo );
+                        m_current_metadata.track_title = json_metadata["title"].get<std::string>();
+                        m_current_metadata.album_title = json_metadata["album"]["title"].get<std::string>();
+                        m_current_metadata.cover_art = json_metadata["album"]["cover"].get<std::string>();
+                    }
+                    if ( next_dzapiinfo )
                         std::cout << "\tnext:" << next_dzapiinfo << std::endl;
                 }
                 m_ctx.track_played_count++;
@@ -525,6 +535,7 @@ private:
 private:
 
     deezer_wrapper::observer* m_observer = nullptr;
+    deezer_wrapper::track_metadata m_current_metadata = {};
 
     dz_connect_configuration m_config;
     wrapper_context m_ctx;
@@ -620,4 +631,9 @@ void deezer_wrapper::playback_previous()
 void deezer_wrapper::play_audioads()
 {
     m_pimpl->play_audioads();
+}
+
+const deezer_wrapper::track_metadata& deezer_wrapper::current_metadata()
+{
+    return m_pimpl->current_metadata();
 }

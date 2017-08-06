@@ -24,10 +24,6 @@ THE SOFTWARE.
 
 #include "DeezzyApp.h"
 
-#define DEEZZY_APPLICATION_ID      "247082"	// SET YOUR APPLICATION ID
-#define DEEZZY_APPLICATION_NAME    "Deezzy" 	// SET YOUR APPLICATION NAME
-#define DEEZZY_APPLICATION_VERSION "00001"	// SET YOUR APPLICATION VERSION
-
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);

@@ -32,6 +32,23 @@ THE SOFTWARE.
 #define DEEZZY_APPLICATION_NAME    "Deezzy" 	// SET YOUR APPLICATION NAME
 #define DEEZZY_APPLICATION_VERSION "00001"	// SET YOUR APPLICATION VERSION
 
+class Metadata : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(QString title READ title)
+    Q_PROPERTY(QString albumTitle READ albumTitle)
+    Q_PROPERTY(QString coverArtUrl READ coverArtUrl)
+public:
+    Metadata( QObject* parent ) : QObject( parent ) {}
+    QString title() { return m_title; }
+    QString albumTitle() { return m_albumTitle; }
+    QString coverArtUrl() { return m_coverArtUrl; }
+public:
+    QString m_title;
+    QString m_albumTitle;
+    QString m_coverArtUrl;
+};
+
 class DeezzyApp :   public QObject,
                     public deezer_wrapper::observer
 {
@@ -39,6 +56,7 @@ class DeezzyApp :   public QObject,
     Q_ENUMS(PlaybackState)
     Q_PROPERTY(PlaybackState playbackState READ playbackState)
     Q_PROPERTY(QString content READ content WRITE setContent)
+    Q_PROPERTY(Metadata* metaData READ metaData)
 public:
     enum class PlaybackState
     {
@@ -47,7 +65,8 @@ public:
         Paused
     };
 public:
-    DeezzyApp() : m_deezer_wrapper( std::make_shared<deezer_wrapper>(   DEEZZY_APPLICATION_ID,
+    DeezzyApp() :   m_current_metadata( new Metadata(this) ),
+                    m_deezer_wrapper( std::make_shared<deezer_wrapper>( DEEZZY_APPLICATION_ID,
                                                                         DEEZZY_APPLICATION_NAME,
                                                                         DEEZZY_APPLICATION_VERSION,
                                                                         true /*print_version*/ ) )
@@ -93,7 +112,7 @@ public:
     }
     Q_INVOKABLE bool resume()
     {
-        m_deezer_wrapper->playback_start();
+        m_deezer_wrapper->playback_resume();
         m_playback_state = PlaybackState::Playing;
 
         return true;
@@ -125,6 +144,14 @@ public:
     void setContent( const QString& content )
     {
         m_deezer_wrapper->set_content( content.toStdString() );
+    }
+
+    Metadata* metaData() const {
+        auto& _metadata = m_deezer_wrapper->current_metadata();
+        m_current_metadata->m_title = QString::fromStdString( _metadata.track_title );
+        m_current_metadata->m_albumTitle = QString::fromStdString( _metadata.album_title );
+        m_current_metadata->m_coverArtUrl = QString::fromStdString( _metadata.cover_art );
+        return m_current_metadata;
     }
 
 signals:
@@ -199,6 +226,7 @@ private:
                 emit playing();
                 break;
             case deezer_wrapper::player_event::render_track_end:
+                emit stopped();
                 break;
             case deezer_wrapper::player_event::render_track_paused:
                 emit paused();
@@ -208,6 +236,7 @@ private:
             case deezer_wrapper::player_event::render_track_underflow:
                 break;
             case deezer_wrapper::player_event::render_track_resumed:
+                emit playing();
                 break;
             case deezer_wrapper::player_event::render_track_removed:
                 break;
@@ -217,8 +246,8 @@ private:
     }
 private:
 
+    Metadata* m_current_metadata = nullptr;
     PlaybackState m_playback_state = PlaybackState::Stopped;
 
     std::shared_ptr<deezer_wrapper> m_deezer_wrapper;
 };
-Q_DECLARE_METATYPE(DeezzyApp::PlaybackState)
