@@ -1,0 +1,26 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Deezzy.qml</file>
+        <file>SliderBar.qml</file>
+    </qresource>
+    <qresource prefix="/images">
+        <file alias="bar.png">images/bar.png</file>
+        <file alias="cover_frame.png">images/cover_frame.png</file>
+        <file alias="cover_overlay.png">images/cover_overlay.png</file>
+        <file alias="cover.png">images/cover.png</file>
+        <file alias="slider_background.png">images/slider_background.png</file>
+        <file alias="slider_knob.png">images/slider_knob.png</file>
+        <file alias="slider_value_left.png">images/slider_value_left.png</file>
+        <file alias="slider_value_right.png">images/slider_value_right.png</file>
+    </qresource>
+    <qresource prefix="/icons">
+        <file alias="forward.png">icons/forward.png</file>
+        <file alias="play.png">icons/play.png</file>
+        <file alias="pause.png">icons/pause.png</file>
+        <file alias="rewind.png">icons/rewind.png</file>
+        <file alias="share.png">icons/share.png</file>
+    </qresource>
+    <qresource prefix="/fonts">
+        <file alias="OpenSans-Regular.ttf">fonts/OpenSans-Regular.ttf</file>
+    </qresource>
+</RCC>

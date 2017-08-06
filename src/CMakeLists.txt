@@ -21,17 +21,38 @@
 #THE SOFTWARE.
 
 cmake_minimum_required (VERSION 3.2)
+project (deezzy)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+# Find includes in corresponding build directories
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+# Instruct CMake to run moc automatically when needed.
+set(CMAKE_AUTOMOC ON)
 
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Wall -Wpedantic -Wno-narrowing")
+find_package(Qt5 COMPONENTS Qml Gui)
 
-# Set compiler options
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_C_FLAGS}")
+include("${CMAKE_SOURCE_DIR}/cmake/FindDeezer.cmake")
 
-include( ${CMAKE_SOURCE_DIR}/cmake/cotire.cmake)
+set (sources_list
+main.cpp
+deezer_wrapper.cpp
+)
 
-add_subdirectory(src)
+include_directories(${DEEZER_SDK_INCLUDE_DIR})
+link_directories(${DEEZER_SDK_LIBRARY_DIR})
+
+message(${DEEZER_SDK_LIBRARY_DIR})
+
+qt5_add_resources(DEEZY_RESOURCES deezzy.qrc)
+
+add_executable(deezzy ${sources_list} ${headers_list} ${DEEZY_RESOURCES})
+
+qt5_use_modules(deezzy Qml)
+
+target_link_libraries(deezzy
+    deezer
+    Qt5::Qml
+    Qt5::Gui
+)
+
+cotire(deezzy)
