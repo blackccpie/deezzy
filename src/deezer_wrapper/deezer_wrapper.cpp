@@ -43,7 +43,6 @@ private:
         int track_played_count = 0;
         int activation_count = 0;
         bool is_shuffle_mode = false;
-        bool is_playing = false;
         std::string content_url;
         dz_connect_handle dzconnect = nullptr;
         dz_player_handle dzplayer = nullptr;
@@ -85,6 +84,10 @@ public:
         std::cout << "LOAD => " << m_ctx.content_url << std::endl;
         dz_player_load( m_ctx.dzplayer, nullptr, nullptr,
                         m_ctx.content_url.c_str() );
+    }
+    std::string get_content()
+    {
+        return m_ctx.content_url;
     }
     bool active()
     {
@@ -184,34 +187,27 @@ public:
             m_ctx.dzconnect = nullptr;
         }
     }
-    void playback_start_or_stop()
+    void playback_start()
     {
-        if ( !m_ctx.is_playing )
-        {
-            std::cout << "PLAY track n° " << m_ctx.track_played_count << " of => " << m_ctx.content_url << std::endl;
-            dz_player_play( m_ctx.dzplayer, nullptr, nullptr,
-                            DZ_PLAYER_PLAY_CMD_START_TRACKLIST,
-                            DZ_INDEX_IN_QUEUELIST_CURRENT );
-
-        }
-        else
-        {
-            std::cout << "STOP => " << m_ctx.content_url << std::endl;
-            dz_player_stop( m_ctx.dzplayer, nullptr, nullptr );
-        }
+        std::cout << "PLAY track n° " << m_ctx.track_played_count << " of => " << m_ctx.content_url << std::endl;
+        dz_player_play( m_ctx.dzplayer, nullptr, nullptr,
+                        DZ_PLAYER_PLAY_CMD_START_TRACKLIST,
+                        DZ_INDEX_IN_QUEUELIST_CURRENT );
     }
-    void playback_pause_or_resume()
+    void playback_stop()
     {
-        if ( m_ctx.is_playing )
-        {
-            std::cout << "PAUSE track n° " << m_ctx.track_played_count << " of => " << m_ctx.content_url << std::endl;
-            dz_player_pause( m_ctx.dzplayer, nullptr, nullptr );
-        }
-        else
-        {
-            std::cout << "RESUME track n° " << m_ctx.track_played_count << " of => " << m_ctx.content_url << std::endl;
-            dz_player_resume( m_ctx.dzplayer, nullptr, nullptr );
-        }
+        std::cout << "STOP => " << m_ctx.content_url << std::endl;
+        dz_player_stop( m_ctx.dzplayer, nullptr, nullptr );
+    }
+    void playback_pause()
+    {
+        std::cout << "PAUSE track n° " << m_ctx.track_played_count << " of => " << m_ctx.content_url << std::endl;
+        dz_player_pause( m_ctx.dzplayer, nullptr, nullptr );
+    }
+    void playback_resume()
+    {
+        std::cout << "RESUME track n° " << m_ctx.track_played_count << " of => " << m_ctx.content_url << std::endl;
+        dz_player_resume( m_ctx.dzplayer, nullptr, nullptr );
     }
     void playback_toogle_repeat()
     {
@@ -443,56 +439,48 @@ private:
 
             case DZ_PLAYER_EVENT_RENDER_TRACK_START_FAILURE:
                 std::cout << "(App:" << &m_ctx << ") ==== PLAYER_EVENT ==== RENDER_TRACK_START_FAILURE for idx: " << idx << std::endl;
-                m_ctx.is_playing = false;
                 output_event = player_event::render_track_start_failure;
                 break;
 
             case DZ_PLAYER_EVENT_RENDER_TRACK_START:
                 std::cout << "(App:" << &m_ctx << ") ==== PLAYER_EVENT ==== RENDER_TRACK_START for idx: " << idx << std::endl;
-                m_ctx.is_playing = true;
                 output_event = player_event::render_track_start;
                 break;
 
             case DZ_PLAYER_EVENT_RENDER_TRACK_END:
                 std::cout << "(App:" << &m_ctx << ") ==== PLAYER_EVENT ==== RENDER_TRACK_END for idx: " << idx << std::endl;
-                m_ctx.is_playing = false;
                 std::cout << "- track_played_count : " << m_ctx.track_played_count << std::endl;
                 // Detect if we come from from playing an ad, if yes restart automatically the playback.
-                if (idx == DZ_INDEX_IN_QUEUELIST_INVALID)
+                if ( idx == DZ_INDEX_IN_QUEUELIST_INVALID )
                 {
                     std::cout << "NOT VERY SURE ABOUT THIS..." << std::endl;
-                    playback_start_or_stop(); // TODO : not very sure about that...
+                    playback_start(); // TODO : not very sure about that...
                 }
                 output_event = player_event::render_track_end;
                 break;
 
             case DZ_PLAYER_EVENT_RENDER_TRACK_PAUSED:
                 std::cout << "(App:" << &m_ctx << ") ==== PLAYER_EVENT ==== RENDER_TRACK_PAUSED for idx: " << idx << std::endl;
-                m_ctx.is_playing = false;
                 output_event = player_event::render_track_paused;
                 break;
 
             case DZ_PLAYER_EVENT_RENDER_TRACK_UNDERFLOW:
                 std::cout << "(App:" << &m_ctx << ") ==== PLAYER_EVENT ==== RENDER_TRACK_UNDERFLOW for idx: " << idx << std::endl;
-                m_ctx.is_playing = false;
                 output_event = player_event::render_track_underflow;
                 break;
 
             case DZ_PLAYER_EVENT_RENDER_TRACK_RESUMED:
                 std::cout << "(App:" << &m_ctx << ") ==== PLAYER_EVENT ==== RENDER_TRACK_RESUMED for idx: " << idx << std::endl;
-                m_ctx.is_playing = true;
                 output_event = player_event::render_track_resumed;
                 break;
 
             case DZ_PLAYER_EVENT_RENDER_TRACK_SEEKING:
                 std::cout << "(App:" << &m_ctx << ") ==== PLAYER_EVENT ==== RENDER_TRACK_SEEKING for idx: " << idx << std::endl;
-                m_ctx.is_playing = false;
                 output_event = player_event::render_track_seeking;
                 break;
 
             case DZ_PLAYER_EVENT_RENDER_TRACK_REMOVED:
                 std::cout << "(App:" << &m_ctx << ") ==== PLAYER_EVENT ==== RENDER_TRACK_REMOVED for idx: " << idx << std::endl;
-                m_ctx.is_playing = false;
                 output_event = player_event::render_track_removed;
                 break;
 
@@ -569,6 +557,11 @@ void deezer_wrapper::load_content()
     m_pimpl->load_content();
 }
 
+std::string deezer_wrapper::get_content()
+{
+    return m_pimpl->get_content();
+}
+
 bool deezer_wrapper::active()
 {
     return m_pimpl->active();
@@ -584,14 +577,24 @@ void deezer_wrapper::disconnect()
     m_pimpl->disconnect();
 }
 
-void deezer_wrapper::playback_start_or_stop()
+void deezer_wrapper::playback_start()
 {
-    m_pimpl->playback_start_or_stop();
+    m_pimpl->playback_start();
 }
 
-void deezer_wrapper::playback_pause_or_resume()
+void deezer_wrapper::playback_stop()
 {
-    m_pimpl->playback_pause_or_resume();
+    m_pimpl->playback_stop();
+}
+
+void deezer_wrapper::playback_pause()
+{
+    m_pimpl->playback_pause();
+}
+
+void deezer_wrapper::playback_resume()
+{
+    m_pimpl->playback_resume();
 }
 
 void deezer_wrapper::playback_toogle_repeat()

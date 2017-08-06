@@ -119,14 +119,17 @@ public:
 
     void set_content( const std::string& content );
     void load_content();
+    std::string get_content();
 
     bool active();
 
     void connect();
     void disconnect();
 
-    void playback_start_or_stop();
-    void playback_pause_or_resume();
+    void playback_start();
+    void playback_stop();
+    void playback_pause();
+    void playback_resume();
 
     void playback_toogle_repeat();
     void playback_toogle_random();

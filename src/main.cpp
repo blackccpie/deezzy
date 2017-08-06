@@ -38,6 +38,16 @@ class DeezzyApp :   public QObject,
                     public deezer_wrapper::observer
 {
     Q_OBJECT
+    Q_ENUMS(PlaybackState)
+    Q_PROPERTY(PlaybackState playbackState READ playbackState)
+    Q_PROPERTY(QString content READ content WRITE setContent)
+public:
+    enum class PlaybackState
+    {
+        Stopped,
+        Playing,
+        Paused
+    };
 public:
     DeezzyApp() : m_deezer_wrapper( std::make_shared<deezer_wrapper>(   DEEZZY_APPLICATION_ID,
                                                                         DEEZZY_APPLICATION_NAME,
@@ -45,10 +55,12 @@ public:
                                                                         true /*print_version*/ ) )
     {
     }
+
+    /************ Q_INVOKABLEs ************/
+
     Q_INVOKABLE bool connect()
     {
         m_deezer_wrapper->register_observer( this );
-        m_deezer_wrapper->set_content( "dzmedia:///playlist/65275704" );
         m_deezer_wrapper->connect();
 
         return true;
@@ -60,12 +72,69 @@ public:
 
         return true;
     }
-    Q_INVOKABLE bool toggle_start_stop()
+    Q_INVOKABLE bool play()
     {
-        m_deezer_wrapper->playback_start_or_stop();
+        m_deezer_wrapper->load_content();
+        m_playback_state = PlaybackState::Playing;
 
         return true;
     }
+    Q_INVOKABLE bool stop()
+    {
+        m_deezer_wrapper->playback_stop();
+        m_playback_state = PlaybackState::Stopped;
+
+        return true;
+    }
+    Q_INVOKABLE bool pause()
+    {
+        m_deezer_wrapper->playback_pause();
+        m_playback_state = PlaybackState::Paused;
+
+        return true;
+    }
+    Q_INVOKABLE bool resume()
+    {
+        m_deezer_wrapper->playback_start();
+        m_playback_state = PlaybackState::Playing;
+
+        return true;
+    }
+    Q_INVOKABLE bool next()
+    {
+        m_deezer_wrapper->playback_next();
+
+        return true;
+    }
+    Q_INVOKABLE bool previous()
+    {
+        m_deezer_wrapper->playback_previous();
+
+        return true;
+    }
+
+    /************ Q_PROPERTYs ************/
+
+    PlaybackState playbackState() const {
+        return m_playback_state;
+    }
+
+    QString content()
+    {
+        return QString::fromStdString( m_deezer_wrapper->get_content() );
+    }
+
+    void setContent( const QString& content )
+    {
+        m_deezer_wrapper->set_content( content.toStdString() );
+    }
+
+signals:
+    void paused();
+    void playing();
+    void stopped();
+    void error();
+
 private:
     void on_connect_event( const deezer_wrapper::connect_event& event ) final override
     {
@@ -108,14 +177,13 @@ private:
             case deezer_wrapper::player_event::limitation_forced_pause:
                 break;
             case deezer_wrapper::player_event::queuelist_loaded:
-                //m_deezer_wrapper->playback_start_or_stop();
+                m_deezer_wrapper->playback_start();
                 break;
             case deezer_wrapper::player_event::queuelist_no_right:
                 break;
             case deezer_wrapper::player_event::queuelist_track_not_available_offline:
                 break;
             case deezer_wrapper::player_event::queuelist_track_rights_after_audioads:
-                //m_deezer_wrapper->play_audioads();
                 break;
             case deezer_wrapper::player_event::queuelist_skip_no_right:
                 break;
@@ -130,10 +198,12 @@ private:
             case deezer_wrapper::player_event::render_track_start_failure:
                 break;
             case deezer_wrapper::player_event::render_track_start:
+                emit playing();
                 break;
             case deezer_wrapper::player_event::render_track_end:
                 break;
             case deezer_wrapper::player_event::render_track_paused:
+                emit paused();
                 break;
             case deezer_wrapper::player_event::render_track_seeking:
                 break;
@@ -148,8 +218,12 @@ private:
         }
     }
 private:
+
+    PlaybackState m_playback_state = PlaybackState::Stopped;
+
     std::shared_ptr<deezer_wrapper> m_deezer_wrapper;
 };
+Q_DECLARE_METATYPE(DeezzyApp::PlaybackState)
 
 int main(int argc, char *argv[])
 {

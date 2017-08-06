@@ -29,7 +29,7 @@ import QtQuick.Layouts 1.0
 import Native.DeezzyApp 1.0
 
 ApplicationWindow {
-    id: root
+    id: appwindow
     width: 800
     height: 186
     visible: true
@@ -46,20 +46,21 @@ ApplicationWindow {
         id: playLogic
 
         property int index: -1
-        //property MediaPlayer mediaPlayer: player
+        //property DeezzyApp mediaPlayer: deezzy
         // property FolderListModel items: FolderListModel {
         //     folder: "music"
         //     nameFilters: ["*.mp3"]
         // }
+        property var items: ["dzmedia:///album/43144861"]
 
         function init(){
-            // if(mediaPlayer.playbackState===1){
-            //     mediaPlayer.pause();
-            // }else if(mediaPlayer.playbackState===2){
-            //     mediaPlayer.play();
-            // }else{
-            //     setIndex(0);
-            // }
+            if(deezzy.playbackState==DeezzyApp.Paused){
+            	deezzy.pause();
+            }else if(deezzy.playbackState==DeezzyApp.Playing){
+            	deezzy.play();
+            }else{
+                setIndex(0);
+            }
         }
 
         function setIndex(i)
@@ -69,11 +70,12 @@ ApplicationWindow {
             if (index < 0 || index >= items.count)
             {
                 index = -1;
-                //mediaPlayer.source = "";
+                deezzy.content = "";
             }
             else{
                 //mediaPlayer.source = items.get(index,"filePath");
-                //mediaPlayer.play();
+                deezzy.content = items[i]; // TODO-TMP
+                deezzy.play();
             }
         }
 
@@ -95,32 +97,32 @@ ApplicationWindow {
             return minutes + ":" + seconds;
         }
 
-        // Connections {
-        //     target: playLogic.mediaPlayer
-        //
-        //     onPaused: {
-        //         playPause.source = "icons/play.png";
-        //     }
-        //
-        //     onPlaying: {
-        //          playPause.source = "icons/pause.png";
-        //     }
-        //
-        //     onStopped: {
-        //         playPause.source = "icons/play.png";
-        //         if (playLogic.mediaPlayer.status == MediaPlayer.EndOfMedia)
-        //             playLogic.next();
-        //     }
-        //
-        //     onError: {
-        //         console.log(error+" error string is "+errorString);
-        //     }
-        //
+        Connections {
+            target: deezzy
+
+            onPaused: {
+                playPause.source = "icons/play.png";
+            }
+
+            onPlaying: {
+                 playPause.source = "icons/pause.png";
+            }
+
+            onStopped: {
+                playPause.source = "icons/play.png";
+        		//if (playLogic.mediaPlayer.status == MediaPlayer.EndOfMedia)
+        		//    playLogic.next();
+            }
+
+            onError: {
+                console.log(error+" error string is "+errorString);
+            }
+
         //     onMediaObjectChanged: {
         //         if (playLogic.mediaPlayer.mediaObject)
         //             playLogic.mediaPlayer.mediaObject.notifyInterval = 50;
         //     }
-        // }
+        }
     }
 
     FontLoader {
