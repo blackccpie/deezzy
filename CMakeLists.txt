@@ -33,5 +33,10 @@ set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Wall -Wpedantic -Wno-narrowing")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_C_FLAGS}")
 
 include( ${CMAKE_SOURCE_DIR}/cmake/cotire.cmake)
+include( ${CMAKE_SOURCE_DIR}/cmake/targetarch.cmake)
+
+target_architecture(CMAKE_SYSTEM_PROCESSOR)
+
+message("Building on processor architecture : ${CMAKE_SYSTEM_PROCESSOR}")
 
 add_subdirectory(src)
