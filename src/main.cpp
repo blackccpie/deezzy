@@ -28,7 +28,8 @@ int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
 
-    qmlRegisterType<DeezzyApp>("Native.DeezzyApp", 1, 0, "DeezzyApp");
+	qRegisterMetaType<Metadata*>("Metadata*");
+	qmlRegisterType<DeezzyApp>("Native.DeezzyApp", 1, 0, "DeezzyApp");
 
     QQmlApplicationEngine engine;
     engine.load(QUrl(QStringLiteral("qrc:/Deezzy.qml")));

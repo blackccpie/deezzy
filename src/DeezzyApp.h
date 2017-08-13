@@ -35,14 +35,18 @@ THE SOFTWARE.
 class Metadata : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString title READ title)
-    Q_PROPERTY(QString albumTitle READ albumTitle)
-    Q_PROPERTY(QString coverArtUrl READ coverArtUrl)
+    Q_PROPERTY(QString title READ title NOTIFY titleChanged)
+    Q_PROPERTY(QString albumTitle READ albumTitle NOTIFY albumTitleChanged)
+    Q_PROPERTY(QString coverArtUrl READ coverArtUrl NOTIFY coverArtUrlChanged)
 public:
     Metadata( QObject* parent ) : QObject( parent ) {}
     QString title() { return m_title; }
     QString albumTitle() { return m_albumTitle; }
     QString coverArtUrl() { return m_coverArtUrl; }
+signals:
+	void titleChanged();
+	void albumTitleChanged();
+	void coverArtUrlChanged();
 public:
     QString m_title;
     QString m_albumTitle;
@@ -56,7 +60,7 @@ class DeezzyApp :   public QObject,
     Q_ENUMS(PlaybackState)
     Q_PROPERTY(PlaybackState playbackState READ playbackState)
     Q_PROPERTY(QString content READ content WRITE setContent)
-    Q_PROPERTY(Metadata* metaData READ metaData)
+    Q_PROPERTY(Metadata* metaData READ metaData NOTIFY metaDataChanged)
 public:
     enum class PlaybackState
     {
@@ -159,6 +163,8 @@ signals:
     void playing();
     void stopped();
     void error();
+
+	void metaDataChanged();
 
 private:
     void on_connect_event( const deezer_wrapper::connect_event& event ) final override
