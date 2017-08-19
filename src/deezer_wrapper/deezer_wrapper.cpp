@@ -560,7 +560,7 @@ private:
     }
     void _index_progress_callback( dz_useconds_t progress )
     {
-        std::cout << "INDEX_PROGRESS " << progress << std::endl;
+        //std::cout << "INDEX_PROGRESS " << progress << std::endl;
         if ( m_observer )
             m_observer->on_index_progress( static_cast<int>( progress / 1000 ) );
     }
@@ -572,7 +572,7 @@ private:
     }
     void _render_progress_callback( dz_useconds_t progress )
     {
-        std::cout << "RENDER_PROGRESS " << progress << std::endl;
+        //std::cout << "RENDER_PROGRESS " << progress << std::endl;
         if ( m_observer )
             m_observer->on_render_progress( static_cast<int>( progress / 1000 ) );
     }

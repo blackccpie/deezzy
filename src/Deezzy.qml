@@ -29,16 +29,25 @@ import QtQuick.Layouts 1.0
 import Native.DeezzyApp 1.0
 
 ApplicationWindow {
-    id: appwindow
+
+    id: appWindow
+    
     width: 800
     height: 186
     visible: true
+
+    signal bufferProgress( int progress )
+    signal renderProgress( int progress )
 
     DeezzyApp
     {
         id: deezzy
 
-        Component.onCompleted: deezzy.connect();
+        Component.onCompleted: {
+            appWindow.bufferProgress.connect(sliderBar.setBufferProgress)
+            appWindow.renderProgress.connect(sliderBar.setRenderProgress)
+            deezzy.connect();
+        }
         Component.onDestruction: deezzy.disconnect();
     }
 
@@ -127,13 +136,14 @@ ApplicationWindow {
         		//    playLogic.next();
             }
 
-            onIndexProgress: {
-                console.log("DEEZZY INDEX PROGRESS" + progress);
+            onBufferProgress: {
+                console.log("DEEZZY BUFFER PROGRESS " + progress);
+                bufferProgress(progress);
             }
 
             onRenderProgress: {
-                console.log("DEEZZY RENDER PROGRESS" + progress);
-                //sliderBar.trackProgress.width = progress;
+                console.log("DEEZZY RENDER PROGRESS " + progress);
+                renderProgress(progress);
             }
 
             onError: {

@@ -154,12 +154,8 @@ public:
         m_deezer_wrapper->set_content( content.toStdString() );
     }
 
-    Metadata* metaData() const {
-        auto& _metadata = m_deezer_wrapper->current_metadata();
-        m_current_metadata->m_title = QString::fromStdString( _metadata.track_title );
-        m_current_metadata->m_duration = _metadata.track_duration;
-        m_current_metadata->m_albumTitle = QString::fromStdString( _metadata.album_title );
-        m_current_metadata->m_coverArtUrl = QString::fromStdString( _metadata.cover_art );
+    Metadata* metaData() const
+    {
         return m_current_metadata;
     }
 
@@ -168,12 +164,20 @@ signals:
     void playing();
     void stopped();
     void error();
-    void indexProgress( float progress );
+    void bufferProgress( float progress );
     void renderProgress( float progress );
 
 	void metaDataChanged();
 
 private:
+    void update_current_metadata()
+    {
+        auto& _metadata = m_deezer_wrapper->current_metadata();
+        m_current_metadata->m_title = QString::fromStdString( _metadata.track_title );
+        m_current_metadata->m_duration = _metadata.track_duration;
+        m_current_metadata->m_albumTitle = QString::fromStdString( _metadata.album_title );
+        m_current_metadata->m_coverArtUrl = QString::fromStdString( _metadata.cover_art );
+    }
     void on_connect_event( const deezer_wrapper::connect_event& event ) final override
     {
         switch( event )
@@ -226,6 +230,7 @@ private:
             case deezer_wrapper::player_event::queuelist_skip_no_right:
                 break;
             case deezer_wrapper::player_event::queuelist_track_selected:
+                update_current_metadata();
                 break;
             case deezer_wrapper::player_event::queuelist_need_natural_next:
                 break;
@@ -260,12 +265,18 @@ private:
     void on_index_progress( int progress_ms ) final override
     {
         if ( m_current_metadata )
-            indexProgress( progress_ms / ( 10.f * m_current_metadata->m_duration ) );
+        {
+            auto p = progress_ms / ( 10.f * m_current_metadata->m_duration );
+            bufferProgress( std::min( p, 100.f ) );
+        }
     }
     void on_render_progress( int progress_ms ) final override
     {
         if ( m_current_metadata )
-            renderProgress( progress_ms / ( 10.f * m_current_metadata->m_duration ) );
+        {
+            auto p = progress_ms / ( 10.f * m_current_metadata->m_duration );
+            renderProgress( std::min( p, 100.f ) );
+        }
     }
 private:
 

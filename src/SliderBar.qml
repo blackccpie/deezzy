@@ -38,6 +38,13 @@ Image {
     source: bgImg
     anchors.verticalCenterOffset: 3
 
+    function setRenderProgress(progress) {
+        trackProgress.width = progress * trackProgressParent.width / 100;
+    }
+    function setBufferProgress(progress) {
+        trackBuffer.width = progress * trackBufferParent.width / 100;
+    }
+
     MouseArea {
         anchors.fill: parent
         //onClicked: {
@@ -47,6 +54,7 @@ Image {
     }
 
     Rectangle {
+        id: trackBufferParent
         width: parent.width - 4
         anchors.verticalCenterOffset: -1
         anchors.verticalCenter: parent.verticalCenter
@@ -64,6 +72,7 @@ Image {
     }
 
     Rectangle {
+        id: trackProgressParent
         width: parent.width - 4
         anchors.verticalCenterOffset: -1
         anchors.verticalCenter: parent.verticalCenter
