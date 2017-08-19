@@ -31,13 +31,17 @@ import Native.DeezzyApp 1.0
 ApplicationWindow {
 
     id: appWindow
-    
+
     width: 800
     height: 186
     visible: true
 
     signal bufferProgress( int progress )
     signal renderProgress( int progress )
+
+    function seek(progress) {
+        deezzy.seek(progress);
+    }
 
     DeezzyApp
     {
@@ -46,6 +50,7 @@ ApplicationWindow {
         Component.onCompleted: {
             appWindow.bufferProgress.connect(sliderBar.setBufferProgress)
             appWindow.renderProgress.connect(sliderBar.setRenderProgress)
+            sliderBar.seek.connect(appWindow.seek)
             deezzy.connect();
         }
         Component.onDestruction: deezzy.disconnect();
@@ -55,12 +60,7 @@ ApplicationWindow {
         id: playLogic
 
         property int index: -1
-        //property DeezzyApp mediaPlayer: deezzy
-        // property FolderListModel items: FolderListModel {
-        //     folder: "music"
-        //     nameFilters: ["*.mp3"]
-        // }
-        property var items: ["dzmedia:///album/43144861"]
+        property var playlist: "dzmedia:///album/43144861"
 
         function init(){
             if(deezzy.playbackState==DeezzyApp.Paused){
@@ -71,35 +71,18 @@ ApplicationWindow {
             	deezzy.pause();
             }else if(deezzy.playbackState==DeezzyApp.Stopped){
                 console.log("DEEZZY STATE IS STOPPED");
-                setIndex(0);
+                deezzy.content = playlist; // TODO-TMP
+                deezzy.play();
             }else {
                 console.log("DEEZZY STATE IS UNKNOWN");
             }
         }
 
-        function setIndex(i)
-        {
-            index = i;
-
-            if (index < 0 || index >= items.count)
-            {
-                index = -1;
-                deezzy.content = "";
-            }
-            else{
-                //mediaPlayer.source = items.get(index,"filePath");
-                deezzy.content = items[i]; // TODO-TMP
-                deezzy.play();
-            }
-        }
-
         function next(){
-            //setIndex(index + 1);
             deezzy.next();
         }
 
         function previous(){
-            //setIndex(index - 1);
             deezzy.previous();
         }
 

@@ -125,6 +125,16 @@ public:
 
         return true;
     }
+    Q_INVOKABLE bool seek( int progress )
+    {
+        if ( m_current_metadata )
+        {
+            auto position_ms = 10 * progress * m_current_metadata->m_duration;
+            m_deezer_wrapper->playback_seek( position_ms );
+        }
+
+        return true;
+    }
     Q_INVOKABLE bool next()
     {
         m_deezer_wrapper->playback_next();
@@ -164,6 +174,7 @@ signals:
     void playing();
     void stopped();
     void error();
+    void seeking();
     void bufferProgress( float progress );
     void renderProgress( float progress );
 
@@ -250,6 +261,7 @@ private:
                 emit paused();
                 break;
             case deezer_wrapper::player_event::render_track_seeking:
+                emit seeking();
                 break;
             case deezer_wrapper::player_event::render_track_underflow:
                 break;

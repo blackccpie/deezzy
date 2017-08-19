@@ -223,6 +223,11 @@ public:
         std::cout << "RESUME track n° " << m_ctx.track_played_count << " of => " << m_ctx.content_url << std::endl;
         dz_player_resume( m_ctx.dzplayer, nullptr, nullptr );
     }
+    void playback_seek( int position_ms )
+    {
+        std::cout << "SEEK track n° " << m_ctx.track_played_count << " of => " << m_ctx.content_url << " @" << position_ms << "ms" << std::endl;
+        dz_player_seek( m_ctx.dzplayer, nullptr, nullptr, position_ms * 1000 );
+    }
     void playback_toogle_repeat()
     {
         switch( m_ctx.repeat_mode )
@@ -650,6 +655,11 @@ void deezer_wrapper::playback_pause()
 void deezer_wrapper::playback_resume()
 {
     m_pimpl->playback_resume();
+}
+
+void deezer_wrapper::playback_seek( int position_ms )
+{
+    m_pimpl->playback_seek( position_ms );
 }
 
 void deezer_wrapper::playback_toogle_repeat()

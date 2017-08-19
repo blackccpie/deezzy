@@ -140,6 +140,7 @@ public:
     void playback_stop();
     void playback_pause();
     void playback_resume();
+    void playback_seek( int position_ms );
 
     void playback_toogle_repeat();
     void playback_toogle_random();

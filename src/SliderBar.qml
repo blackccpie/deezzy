@@ -28,6 +28,8 @@ import QtQuick 2.0
 Image {
     id: barSlider
 
+    signal seek( int progress )
+
     //property DeezzyApp deezzy
     property url bgImg
     property url bufferImg: "images/slider_value_left.png"
@@ -47,10 +49,9 @@ Image {
 
     MouseArea {
         anchors.fill: parent
-        //onClicked: {
-            //if (audioPlayer.seekable)
-            //    audioPlayer.seek(audioPlayer.duration * mouse.x/width);
-        //}
+        onClicked: {
+            seek( 100 * mouse.x/width )
+        }
     }
 
     Rectangle {
@@ -63,7 +64,6 @@ Image {
         color: "transparent"
         BorderImage {
             id: trackBuffer
-            //width:  audioPlayer.bufferProgress ? audioPlayer.bufferProgress*parent.width : 0
             source: bufferImg
             border { left: 8; top: 8; right: 8; bottom: 8 }
             horizontalTileMode: BorderImage.Stretch
@@ -82,7 +82,6 @@ Image {
         BorderImage {
             id: trackProgress
             source: progressImg
-            //width: audioPlayer.duration>0?parent.width*audioPlayer.position/audioPlayer.duration:0
             border { left: 8; top: 8; right: 8; bottom: 8 }
             horizontalTileMode: BorderImage.Stretch
             verticalTileMode: BorderImage.Stretch
@@ -108,11 +107,10 @@ Image {
                 drag.minimumX: -10
                 drag.maximumX: parent.parent.width-20
                 onPressed: trackSeeker.state = "pressed"
-                // onReleased: {
-                //     trackSeeker.state = "none"
-                //     if (audioPlayer.seekable)
-                //         audioPlayer.seek(audioPlayer.duration * trackSeeker.x/(parent.parent.width-10));
-                // }
+                onReleased: {
+                    trackSeeker.state = "none"
+                    seek( 100 * trackSeeker.x/(parent.parent.width-10) )
+                }
             }
             states: State {
                 name: "pressed"
