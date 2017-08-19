@@ -24,7 +24,7 @@ THE SOFTWARE.
 
 import QtQuick 2.2
 import QtQuick.Controls 1.0
-import QtQuick.Layouts 1.0
+import QtQuick.Layouts 1.2
 
 import Native.DeezzyApp 1.0
 
@@ -60,7 +60,7 @@ ApplicationWindow {
         id: playLogic
 
         property int index: -1
-        property var playlist: "dzmedia:///album/43144861"
+        property var playlist: "dzmedia:///album/42861141"
 
         function init(){
             if(deezzy.playbackState==DeezzyApp.Paused){
@@ -110,6 +110,7 @@ ApplicationWindow {
                 trackAlbum.text = deezzy.metaData.albumTitle;
                 coverPic.source = deezzy.metaData.coverArtUrl;
                 playPause.source = "icons/pause.png";
+                //totalTime.text = playLogic.msToTime(deezzy.metaData.duration)
             }
 
             onStopped: {
@@ -120,12 +121,13 @@ ApplicationWindow {
             }
 
             onBufferProgress: {
-                console.log("DEEZZY BUFFER PROGRESS " + progress);
+                console.log("DEEZZY BUFFER PROGRESS " + progress.toFixed(2));
                 bufferProgress(progress);
             }
 
             onRenderProgress: {
-                console.log("DEEZZY RENDER PROGRESS " + progress);
+                console.log("DEEZZY RENDER PROGRESS " + progress.toFixed(2));
+                //lowerWrap.currentTime.text = playLogic.msToTime(player.position)
                 renderProgress(progress);
             }
 
@@ -333,7 +335,7 @@ ApplicationWindow {
 
                         Text {
                             id: currentTime
-                            //text: playLogic.msToTime(player.position)
+                            //text: playLogic.msToTime(position)
                             font.family: appFont.name
                             color: "#dedede"
                             font.pointSize: 18
@@ -342,7 +344,6 @@ ApplicationWindow {
                         SliderBar{
                             id: sliderBar
                             Layout.fillWidth: true
-                            //audioPlayer: player
                             bgImg: "images/slider_background.png"
                             bufferImg: "images/slider_value_right.png"
                             progressImg: "images/slider_value_left.png"
@@ -351,7 +352,7 @@ ApplicationWindow {
 
                         Text {
                             id: totalTime
-                            //text: playLogic.msToTime(player.duration)
+                            //text: playLogic.msToTime(duration)
                             font.family: appFont.name
                             color: "#dedede"
                             font.pointSize: 18
