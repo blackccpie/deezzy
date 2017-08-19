@@ -28,7 +28,7 @@ import QtQuick 2.0
 Image {
     id: barSlider
 
-    //property MediaPlayer audioPlayer
+    //property DeezzyApp deezzy
     property url bgImg
     property url bufferImg: "images/slider_value_left.png"
     property url progressImg: "images/slider_value_right.png"

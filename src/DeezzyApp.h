@@ -36,19 +36,23 @@ class Metadata : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
+    Q_PROPERTY(int duration READ duration NOTIFY durationChanged)
     Q_PROPERTY(QString albumTitle READ albumTitle NOTIFY albumTitleChanged)
     Q_PROPERTY(QString coverArtUrl READ coverArtUrl NOTIFY coverArtUrlChanged)
 public:
     Metadata( QObject* parent ) : QObject( parent ) {}
     QString title() { return m_title; }
+    int duration() { return m_duration; }
     QString albumTitle() { return m_albumTitle; }
     QString coverArtUrl() { return m_coverArtUrl; }
 signals:
 	void titleChanged();
+    void durationChanged();
 	void albumTitleChanged();
 	void coverArtUrlChanged();
 public:
     QString m_title;
+    int m_duration;
     QString m_albumTitle;
     QString m_coverArtUrl;
 };
@@ -153,6 +157,7 @@ public:
     Metadata* metaData() const {
         auto& _metadata = m_deezer_wrapper->current_metadata();
         m_current_metadata->m_title = QString::fromStdString( _metadata.track_title );
+        m_current_metadata->m_duration = _metadata.track_duration;
         m_current_metadata->m_albumTitle = QString::fromStdString( _metadata.album_title );
         m_current_metadata->m_coverArtUrl = QString::fromStdString( _metadata.cover_art );
         return m_current_metadata;
@@ -163,6 +168,8 @@ signals:
     void playing();
     void stopped();
     void error();
+    void indexProgress( float progress );
+    void renderProgress( float progress );
 
 	void metaDataChanged();
 
@@ -249,6 +256,16 @@ private:
             default:
                 break;
         }
+    }
+    void on_index_progress( int progress_ms ) final override
+    {
+        if ( m_current_metadata )
+            indexProgress( progress_ms / ( 10.f * m_current_metadata->m_duration ) );
+    }
+    void on_render_progress( int progress_ms ) final override
+    {
+        if ( m_current_metadata )
+            renderProgress( progress_ms / ( 10.f * m_current_metadata->m_duration ) );
     }
 private:
 

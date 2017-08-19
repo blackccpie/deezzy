@@ -127,6 +127,15 @@ ApplicationWindow {
         		//    playLogic.next();
             }
 
+            onIndexProgress: {
+                console.log("DEEZZY INDEX PROGRESS" + progress);
+            }
+
+            onRenderProgress: {
+                console.log("DEEZZY RENDER PROGRESS" + progress);
+                //sliderBar.trackProgress.width = progress;
+            }
+
             onError: {
                 console.log("DEEZZY ONERROR");
             }
@@ -338,6 +347,7 @@ ApplicationWindow {
                         }
 
                         SliderBar{
+                            id: sliderBar
                             Layout.fillWidth: true
                             //audioPlayer: player
                             bgImg: "images/slider_background.png"

@@ -28,7 +28,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 
-
 find_package(Qt5 COMPONENTS Qml Gui)
 
 include("${CMAKE_SOURCE_DIR}/cmake/FindDeezer.cmake")

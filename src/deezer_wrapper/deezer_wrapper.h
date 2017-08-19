@@ -43,6 +43,7 @@ public:
     struct track_metadata
     {
         std::string track_title;
+        int track_duration;
         std::string album_title;
         std::string cover_art;
     };
@@ -113,6 +114,8 @@ public:
         friend class deezer_wrapper;
         virtual void on_connect_event( const deezer_wrapper::connect_event& event ) { /* EMPTY */ }
         virtual void on_player_event( const deezer_wrapper::player_event& event ) { /* EMPTY */ }
+        virtual void on_index_progress( int progress_ms ) { /* EMPTY */ }
+        virtual void on_render_progress( int progress_ms ) { /* EMPTY */ }
     };
 
 public:

@@ -143,6 +143,18 @@ public:
             throw deezer_wrapper_exception( "cannot set event callback" );
         }
 
+        dzerr = dz_player_set_index_progress_cb( m_ctx.dzplayer, deezer_wrapper_impl::_static_index_progress_callback, 1000000/*1s*/ );
+        if ( dzerr != DZ_ERROR_NO_ERROR )
+        {
+            throw deezer_wrapper_exception( "cannot set index progress callback" );
+        }
+
+        dzerr = dz_player_set_render_progress_cb( m_ctx.dzplayer, deezer_wrapper_impl::_static_render_progress_callback, 1000000/*1s*/ );
+        if ( dzerr != DZ_ERROR_NO_ERROR )
+        {
+            throw deezer_wrapper_exception( "cannot set render progress callback" );
+        }
+
         dzerr = dz_player_set_output_volume( m_ctx.dzplayer, nullptr, nullptr, 20 );
         if ( dzerr != DZ_ERROR_NO_ERROR )
         {
@@ -347,9 +359,9 @@ private:
             m_observer->on_connect_event( output_event );
     }
     // callback for dzplayer events
-    static void _static_player_callback(   dz_player_handle handle,
-                                    dz_player_event_handle event,
-                                    void* delegate )
+    static void _static_player_callback(    dz_player_handle handle,
+                                            dz_player_event_handle event,
+                                            void* delegate )
     {
         reinterpret_cast<deezer_wrapper_impl*>( delegate )->_player_callback( handle, event );
     }
@@ -424,11 +436,19 @@ private:
                     if ( selected_dzapiinfo )
                     {
                         std::cout << "\tnow:" << selected_dzapiinfo << std::endl;
-                        using json = nlohmann::json;
-                        json json_metadata = json::parse( selected_dzapiinfo );
-                        m_current_metadata.track_title = json_metadata["title"].get<std::string>();
-                        m_current_metadata.album_title = json_metadata["album"]["title"].get<std::string>();
-                        m_current_metadata.cover_art = json_metadata["album"]["cover"].get<std::string>();
+                        try
+                        {
+                            using json = nlohmann::json;
+                            auto json_metadata = json::parse( selected_dzapiinfo );
+                            m_current_metadata.track_title = json_metadata["title"].get<std::string>();
+                            m_current_metadata.track_duration = json_metadata["duration"].get<int>();
+                            m_current_metadata.album_title = json_metadata["album"]["title"].get<std::string>();
+                            m_current_metadata.cover_art = json_metadata["album"]["cover"].get<std::string>();
+                        }
+                        catch( std::exception& e )
+                        {
+                            std::cerr << "error parsing track metadata : " << e.what() << std::endl;
+                        }
                     }
                     if ( next_dzapiinfo )
                         std::cout << "\tnext:" << next_dzapiinfo << std::endl;
@@ -504,10 +524,10 @@ private:
         if ( m_observer )
             m_observer->on_player_event( output_event );
     }
-    static void _static_connect_on_deactivate( void* delegate,
-                                        void* operation_userdata,
-                                        dz_error_t status,
-                                        dz_object_handle result)
+    static void _static_connect_on_deactivate(  void* delegate,
+                                                void* operation_userdata,
+                                                dz_error_t status,
+                                                dz_object_handle result)
     {
         reinterpret_cast<deezer_wrapper_impl*>( delegate )->_connect_on_deactivate( operation_userdata, status, result );
     }
@@ -518,10 +538,10 @@ private:
         m_ctx.activation_count--;
         std::cout << "CONNECT deactivated - c = " << m_ctx.activation_count << " with status = " << status << std::endl;
     }
-    static void _static_player_on_deactivate(  void* delegate,
-                                        void* operation_userdata,
-                                        dz_error_t status,
-                                        dz_object_handle result )
+    static void _static_player_on_deactivate(   void* delegate,
+                                                void* operation_userdata,
+                                                dz_error_t status,
+                                                dz_object_handle result )
     {
         reinterpret_cast<deezer_wrapper_impl*>( delegate )->_player_on_deactivate( operation_userdata, status, result );
     }
@@ -531,6 +551,30 @@ private:
     {
         m_ctx.activation_count--;
         std::cout << "PLAYER deactivated - c = " << m_ctx.activation_count << " with status = " << status << std::endl;
+    }
+    static void _static_index_progress_callback(    dz_player_handle handle,
+                                                    dz_useconds_t progress,
+                                                    void* delegate )
+    {
+        reinterpret_cast<deezer_wrapper_impl*>( delegate )->_index_progress_callback( progress );
+    }
+    void _index_progress_callback( dz_useconds_t progress )
+    {
+        std::cout << "INDEX_PROGRESS " << progress << std::endl;
+        if ( m_observer )
+            m_observer->on_index_progress( static_cast<int>( progress / 1000 ) );
+    }
+    static void _static_render_progress_callback(   dz_player_handle handle,
+                                                    dz_useconds_t progress,
+                                                    void* delegate )
+    {
+        reinterpret_cast<deezer_wrapper_impl*>( delegate )->_render_progress_callback( progress );
+    }
+    void _render_progress_callback( dz_useconds_t progress )
+    {
+        std::cout << "RENDER_PROGRESS " << progress << std::endl;
+        if ( m_observer )
+            m_observer->on_render_progress( static_cast<int>( progress / 1000 ) );
     }
 private:
 
