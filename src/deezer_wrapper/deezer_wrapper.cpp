@@ -155,6 +155,12 @@ public:
             throw deezer_wrapper_exception( "cannot set render progress callback" );
         }
 
+        dzerr = dz_player_set_metadata_cb( m_ctx.dzplayer, deezer_wrapper_impl::_static_metadata_callback );
+        if ( dzerr != DZ_ERROR_NO_ERROR )
+        {
+            throw deezer_wrapper_exception( "cannot set metadata callback" );
+        }
+
         dzerr = dz_player_set_output_volume( m_ctx.dzplayer, nullptr, nullptr, 20 );
         if ( dzerr != DZ_ERROR_NO_ERROR )
         {
@@ -580,6 +586,28 @@ private:
         //std::cout << "RENDER_PROGRESS " << progress << std::endl;
         if ( m_observer )
             m_observer->on_render_progress( static_cast<int>( progress / 1000 ) );
+    }
+    static void _static_metadata_callback(  dz_player_handle handle,
+                                            dz_track_metadata_handle metadata,
+                                            void* delegate )
+    {
+        reinterpret_cast<deezer_wrapper_impl*>( delegate )->_metadata_callback( metadata );
+    }
+    void _metadata_callback( dz_track_metadata_handle metadata )
+    {
+        auto type = dz_track_metadata_get_type( metadata );
+        switch( type )
+        {
+        case DZ_TRACK_METADATA_UNKNOWN:
+            std::cout << "UNKNOWN METADATA" << std::endl;
+            break;
+        case DZ_TRACK_METADATA_FORMAT_HEADER:
+            std::cout << "FORMAT HEADER METADATA" << std::endl;
+            break;
+        case DZ_TRACK_METADATA_DURATION_MS:
+            std::cout << "DURATION MS METADATA" << std::endl;
+            break;
+        }
     }
 private:
 
