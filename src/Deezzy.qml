@@ -152,7 +152,7 @@ ApplicationWindow {
 
     FontLoader {
         id: appFont
-        name: "OpenSans-Regular"
+        name: "OpenSans"
         source: "fonts/OpenSans-Regular.ttf"
     }
 
@@ -197,9 +197,6 @@ ApplicationWindow {
 
             ColumnLayout{
                 id: container
-                // anchors.horizontalCenter: parent.horizontalCenter
-                // anchors.verticalCenter: parent.verticalCenter
-                anchors.margins: 5
 
                 RowLayout {
                     id: wrapper
@@ -208,32 +205,23 @@ ApplicationWindow {
                     anchors.top: parent.top
 
                     Rectangle {
-                        id: leftWapper
-                        height: 126
-                        width: 126
+                        id: leftWrapper
+                        height: 120
+                        width: 120
                         radius: 7
 
-                        BorderImage {
-                            id: coverBorder
-                            source: "images/cover_overlay.png"
-                            anchors.fill: parent
-                            anchors.margins: 4
-                            border { left: 10; top: 10; right: 10; bottom: 10 }
-                            horizontalTileMode: BorderImage.Stretch
-                            verticalTileMode: BorderImage.Stretch
-
-                            Image {
-                                id: coverPic
-                                source: deezzy.trackInfos.coverArtUrl ? deezzy.trackInfos.coverArtUrl : "images/cover.png"
-                                anchors.fill: coverBorder
-                                anchors.margins: 2
-                            }
+                        Image {
+                            id: coverPic
+                            source: deezzy.trackInfos.coverArtUrl ? deezzy.trackInfos.coverArtUrl : "images/cover.png"
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: 108
+                            height: 108
                         }
-
                     }
 
                     ColumnLayout {
-                        id: rightWapper
+                        id: rightWrapper
                         Layout.fillWidth: true
                         Layout.fillHeight: true
 
@@ -337,6 +325,17 @@ ApplicationWindow {
                                     Layout.fillWidth: true
 
                                     Text {
+                                        id: artist
+                                        text: "Artist unavailable"
+                                        color: "#eeeeee"
+                                        font.family: appFont.name
+                                        font.pointSize: 17
+                                        font.bold: true
+                                        style: Text.Raised
+                                        styleColor: "#111111"
+                                        wrapMode: Text.Wrap
+                                    }
+                                    Text {
                                         id: trackTitle
                                         text: deezzy.trackInfos.title ? deezzy.trackInfos.title : "Song title unavailable"
                                         color: "#eeeeee"
@@ -349,7 +348,7 @@ ApplicationWindow {
                                     }
                                     Text {
                                         id: trackAlbum
-                                        text: deezzy.trackInfos.albumTitle ? deezzy.trackInfos.albumTitle : "Song title unavailable"
+                                        text: deezzy.trackInfos.albumTitle ? deezzy.trackInfos.albumTitle : "Album title unavailable"
                                         color: "steelblue"
                                         font.family: appFont.name
                                         font.pointSize: 17

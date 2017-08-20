@@ -5,7 +5,6 @@
     </qresource>
     <qresource prefix="/images">
         <file alias="deezer-logo.png">images/deezer-logo.png</file>
-        <file alias="cover_overlay.png">images/cover_overlay.png</file>
         <file alias="cover.png">images/cover.png</file>
         <file alias="slider_background.png">images/slider_background.png</file>
         <file alias="slider_knob.png">images/slider_knob.png</file>
