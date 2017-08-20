@@ -281,9 +281,9 @@ public:
     {
         dz_player_play_audioads( m_ctx.dzplayer, nullptr, nullptr );
     }
-    const deezer_wrapper::track_metadata& current_metadata()
+    const deezer_wrapper::track_infos& current_track_infos()
     {
-        return m_current_metadata;
+        return m_current_track_infos;
     }
 private:
     // callback for dzconnect events
@@ -450,15 +450,15 @@ private:
                         try
                         {
                             using json = nlohmann::json;
-                            auto json_metadata = json::parse( selected_dzapiinfo );
-                            m_current_metadata.track_title = json_metadata["title"].get<std::string>();
-                            m_current_metadata.track_duration = json_metadata["duration"].get<int>();
-                            m_current_metadata.album_title = json_metadata["album"]["title"].get<std::string>();
-                            m_current_metadata.cover_art = json_metadata["album"]["cover"].get<std::string>();
+                            auto json_infos = json::parse( selected_dzapiinfo );
+                            m_current_track_infos.track_title = json_infos["title"].get<std::string>();
+                            m_current_track_infos.track_duration = json_infos["duration"].get<int>();
+                            m_current_track_infos.album_title = json_infos["album"]["title"].get<std::string>();
+                            m_current_track_infos.cover_art = json_infos["album"]["cover"].get<std::string>();
                         }
                         catch( std::exception& e )
                         {
-                            std::cerr << "error parsing track metadata : " << e.what() << std::endl;
+                            std::cerr << "error parsing track infos : " << e.what() << std::endl;
                         }
                     }
                     if ( next_dzapiinfo )
@@ -612,7 +612,7 @@ private:
 private:
 
     deezer_wrapper::observer* m_observer = nullptr;
-    deezer_wrapper::track_metadata m_current_metadata = {};
+    deezer_wrapper::track_infos m_current_track_infos = {};
 
     dz_connect_configuration m_config;
     wrapper_context m_ctx;
@@ -715,7 +715,7 @@ void deezer_wrapper::play_audioads()
     m_pimpl->play_audioads();
 }
 
-const deezer_wrapper::track_metadata& deezer_wrapper::current_metadata()
+const deezer_wrapper::track_infos& deezer_wrapper::current_track_infos()
 {
-    return m_pimpl->current_metadata();
+    return m_pimpl->current_track_infos();
 }

@@ -40,7 +40,7 @@ class deezer_wrapper
 {
 public:
 
-    struct track_metadata
+    struct track_infos
     {
         std::string track_title;
         int track_duration;
@@ -150,7 +150,7 @@ public:
 
     void play_audioads();
 
-    const track_metadata& current_metadata();
+    const track_infos& current_track_infos();
 
 private:
 

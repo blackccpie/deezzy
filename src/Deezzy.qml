@@ -31,6 +31,7 @@ import Native.DeezzyApp 1.0
 ApplicationWindow {
 
     id: appWindow
+    //flags: Qt.FramelessWindowHint
 
     width: 800
     height: 186
@@ -106,11 +107,11 @@ ApplicationWindow {
 
             onPlaying: {
                 console.log("DEEZZY ONPLAYING");
-                trackTitle.text = deezzy.metaData.title;
-                trackAlbum.text = deezzy.metaData.albumTitle;
-                coverPic.source = deezzy.metaData.coverArtUrl;
+                trackTitle.text = deezzy.trackInfos.title;
+                trackAlbum.text = deezzy.trackInfos.albumTitle;
+                coverPic.source = deezzy.trackInfos.coverArtUrl;
                 playPause.source = "icons/pause.png";
-                //totalTime.text = playLogic.msToTime(deezzy.metaData.duration)
+                //totalTime.text = playLogic.msToTime(1000 * deezzy.trackInfos.duration)
             }
 
             onStopped: {
@@ -182,7 +183,7 @@ ApplicationWindow {
 
                         Image {
                             id: coverPic
-                            source: deezzy.metaData.coverArtUrl ? deezzy.metaData.coverArtUrl : "images/cover.png"
+                            source: deezzy.trackInfos.coverArtUrl ? deezzy.trackInfos.coverArtUrl : "images/cover.png"
                             anchors.fill: coverBorder
                             anchors.margins: 2
                         }
@@ -281,7 +282,7 @@ ApplicationWindow {
 
                                 Text {
                                     id: trackTitle
-                                    text: deezzy.metaData.title ? deezzy.metaData.title : "Song title unavailable"
+                                    text: deezzy.trackInfos.title ? deezzy.trackInfos.title : "Song title unavailable"
                                     color: "#eeeeee"
                                     font.family: appFont.name
                                     font.pointSize: 17
@@ -292,7 +293,7 @@ ApplicationWindow {
                                 }
                                 Text {
                                     id: trackAlbum
-                                    text: deezzy.metaData.albumTitle ? deezzy.metaData.albumTitle : "Song title unavailable"
+                                    text: deezzy.trackInfos.albumTitle ? deezzy.trackInfos.albumTitle : "Song title unavailable"
                                     color: "steelblue"
                                     font.family: appFont.name
                                     font.pointSize: 17

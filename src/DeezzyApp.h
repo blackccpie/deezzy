@@ -32,7 +32,7 @@ THE SOFTWARE.
 #define DEEZZY_APPLICATION_NAME    "Deezzy" 	// SET YOUR APPLICATION NAME
 #define DEEZZY_APPLICATION_VERSION "00001"	// SET YOUR APPLICATION VERSION
 
-class Metadata : public QObject
+class TrackInfos : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
@@ -40,7 +40,7 @@ class Metadata : public QObject
     Q_PROPERTY(QString albumTitle READ albumTitle NOTIFY albumTitleChanged)
     Q_PROPERTY(QString coverArtUrl READ coverArtUrl NOTIFY coverArtUrlChanged)
 public:
-    Metadata( QObject* parent ) : QObject( parent ) {}
+    TrackInfos( QObject* parent ) : QObject( parent ) {}
     QString title() { return m_title; }
     int duration() { return m_duration; }
     QString albumTitle() { return m_albumTitle; }
@@ -64,7 +64,7 @@ class DeezzyApp :   public QObject,
     Q_ENUMS(PlaybackState)
     Q_PROPERTY(PlaybackState playbackState READ playbackState)
     Q_PROPERTY(QString content READ content WRITE setContent)
-    Q_PROPERTY(Metadata* metaData READ metaData NOTIFY metaDataChanged)
+    Q_PROPERTY(TrackInfos* trackInfos READ trackInfos NOTIFY trackInfosChanged)
 public:
     enum class PlaybackState
     {
@@ -73,7 +73,7 @@ public:
         Paused
     };
 public:
-    DeezzyApp() :   m_current_metadata( new Metadata(this) ),
+    DeezzyApp() :   m_current_track_infos( new TrackInfos( this ) ),
                     m_deezer_wrapper( std::make_shared<deezer_wrapper>( DEEZZY_APPLICATION_ID,
                                                                         DEEZZY_APPLICATION_NAME,
                                                                         DEEZZY_APPLICATION_VERSION,
@@ -127,9 +127,9 @@ public:
     }
     Q_INVOKABLE bool seek( int progress )
     {
-        if ( m_current_metadata )
+        if ( m_current_track_infos )
         {
-            auto position_ms = 10 * progress * m_current_metadata->m_duration;
+            auto position_ms = 10 * progress * m_current_track_infos->m_duration;
             m_deezer_wrapper->playback_seek( position_ms );
         }
 
@@ -164,9 +164,9 @@ public:
         m_deezer_wrapper->set_content( content.toStdString() );
     }
 
-    Metadata* metaData() const
+    TrackInfos* trackInfos() const
     {
-        return m_current_metadata;
+        return m_current_track_infos;
     }
 
 signals:
@@ -178,16 +178,16 @@ signals:
     void bufferProgress( float progress );
     void renderProgress( float progress );
 
-	void metaDataChanged();
+	void trackInfosChanged();
 
 private:
-    void update_current_metadata()
+    void update_current_track_infos()
     {
-        auto& _metadata = m_deezer_wrapper->current_metadata();
-        m_current_metadata->m_title = QString::fromStdString( _metadata.track_title );
-        m_current_metadata->m_duration = _metadata.track_duration;
-        m_current_metadata->m_albumTitle = QString::fromStdString( _metadata.album_title );
-        m_current_metadata->m_coverArtUrl = QString::fromStdString( _metadata.cover_art );
+        auto& _track_infos = m_deezer_wrapper->current_track_infos();
+        m_current_track_infos->m_title = QString::fromStdString( _track_infos.track_title );
+        m_current_track_infos->m_duration = _track_infos.track_duration;
+        m_current_track_infos->m_albumTitle = QString::fromStdString( _track_infos.album_title );
+        m_current_track_infos->m_coverArtUrl = QString::fromStdString( _track_infos.cover_art );
     }
     void on_connect_event( const deezer_wrapper::connect_event& event ) final override
     {
@@ -241,7 +241,7 @@ private:
             case deezer_wrapper::player_event::queuelist_skip_no_right:
                 break;
             case deezer_wrapper::player_event::queuelist_track_selected:
-                update_current_metadata();
+                update_current_track_infos();
                 break;
             case deezer_wrapper::player_event::queuelist_need_natural_next:
                 break;
@@ -276,23 +276,23 @@ private:
     }
     void on_index_progress( int progress_ms ) final override
     {
-        if ( m_current_metadata )
+        if ( m_current_track_infos )
         {
-            auto p = progress_ms / ( 10.f * m_current_metadata->m_duration );
+            auto p = progress_ms / ( 10.f * m_current_track_infos->m_duration );
             bufferProgress( std::min( p, 100.f ) );
         }
     }
     void on_render_progress( int progress_ms ) final override
     {
-        if ( m_current_metadata )
+        if ( m_current_track_infos )
         {
-            auto p = progress_ms / ( 10.f * m_current_metadata->m_duration );
+            auto p = progress_ms / ( 10.f * m_current_track_infos->m_duration );
             renderProgress( std::min( p, 100.f ) );
         }
     }
 private:
 
-    Metadata* m_current_metadata = nullptr;
+    TrackInfos* m_current_track_infos = nullptr;
     PlaybackState m_playback_state = PlaybackState::Stopped;
 
     std::shared_ptr<deezer_wrapper> m_deezer_wrapper;

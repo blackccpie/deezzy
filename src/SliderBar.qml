@@ -23,14 +23,12 @@ THE SOFTWARE.
 */
 
 import QtQuick 2.0
-//import QtMultimedia 5.0
 
 Image {
     id: barSlider
 
     signal seek( int progress )
 
-    //property DeezzyApp deezzy
     property url bgImg
     property url bufferImg: "images/slider_value_left.png"
     property url progressImg: "images/slider_value_right.png"

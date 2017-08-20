@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
 
-	qRegisterMetaType<Metadata*>("Metadata*");
+	qRegisterMetaType<TrackInfos*>("TrackInfos*");
 	qmlRegisterType<DeezzyApp>("Native.DeezzyApp", 1, 0, "DeezzyApp");
 
     QQmlApplicationEngine engine;
