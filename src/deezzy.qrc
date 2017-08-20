@@ -14,6 +14,7 @@
     <qresource prefix="/icons">
         <file alias="play-next.svg">icons/play-next.svg</file>
         <file alias="play.svg">icons/play.svg</file>
+        <file alias="stop.svg">icons/stop.svg</file>
         <file alias="pause.svg">icons/pause.svg</file>
         <file alias="play-prev.svg">icons/play-prev.svg</file>
         <file alias="heart.svg">icons/heart.svg</file>

@@ -63,7 +63,7 @@ ApplicationWindow {
         id: playLogic
 
         property int index: -1
-        property var playlist: "dzmedia:///album/42861141"
+        property var playlist: "dzmedia:///user/18623476/radio" //album/42861141"
 
         function init(){
             if(deezzy.playbackState==DeezzyApp.Paused){
@@ -79,6 +79,10 @@ ApplicationWindow {
             }else {
                 console.log("DEEZZY STATE IS UNKNOWN");
             }
+        }
+
+        function stop(){
+            deezzy.stop();
         }
 
         function next(){
@@ -293,6 +297,34 @@ ApplicationWindow {
                             Rectangle{
                                 width: 50
                             	Image {
+                                	id: stopTrack
+                                	source: "icons/stop.svg"
+                                    width: 50
+                                    height: 50
+                                    mipmap: true
+                                	anchors.verticalCenter: parent.verticalCenter
+                                	state: "none"
+
+                                	MouseArea {
+                                    	anchors.fill: parent
+                                    	onClicked: playLogic.stop()
+                                    	onPressed: stopTrack.state = "pressed"
+                                    	onReleased: stopTrack.state = "none"
+                                	}
+                                	states: State {
+                                    	name: "pressed"
+                                    	when: mouseArea.pressed
+                                    	PropertyChanges { target: stopTrack; scale: 0.8 }
+                                	}
+                                	transitions: Transition {
+                                    	NumberAnimation { properties: "scale"; duration: 100; easing.type: Easing.InOutQuad }
+                                    }
+                                }
+                            }
+
+                            Rectangle{
+                                width: 50
+                            	Image {
                                 	id: nextTrack
                                 	source: "icons/play-next.svg"
                                     width: 50
@@ -330,7 +362,7 @@ ApplicationWindow {
                                         text: deezzy.trackInfos.artist ? deezzy.trackInfos.artist : "Artist unavailable"
                                         color: "#eeeeee"
                                         font.family: appFont.name
-                                        font.pointSize: 17
+                                        font.pointSize: 18
                                         font.bold: true
                                         style: Text.Raised
                                         styleColor: "#111111"
@@ -341,7 +373,7 @@ ApplicationWindow {
                                         text: deezzy.trackInfos.title ? deezzy.trackInfos.title : "Song title unavailable"
                                         color: "#eeeeee"
                                         font.family: appFont.name
-                                        font.pointSize: 17
+                                        font.pointSize: 16
                                         font.bold: true
                                         style: Text.Raised
                                         styleColor: "#111111"
