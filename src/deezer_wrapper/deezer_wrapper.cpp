@@ -451,8 +451,8 @@ private:
                         {
                             using json = nlohmann::json;
                             auto json_infos = json::parse( selected_dzapiinfo );
-                            m_current_track_infos.track_title = json_infos["title"].get<std::string>();
-                            m_current_track_infos.track_duration = json_infos["duration"].get<int>();
+                            m_current_track_infos.title = json_infos["title"].get<std::string>();
+                            m_current_track_infos.duration = json_infos["duration"].get<int>();
                             m_current_track_infos.album_title = json_infos["album"]["title"].get<std::string>();
                             m_current_track_infos.cover_art = json_infos["album"]["cover"].get<std::string>();
                         }
@@ -606,6 +606,8 @@ private:
             break;
         case DZ_TRACK_METADATA_DURATION_MS:
             std::cout << "DURATION MS METADATA" << std::endl;
+            if ( m_observer )
+                m_observer->on_track_duration( dz_track_metadata_get_duration( metadata ) );
             break;
         }
     }

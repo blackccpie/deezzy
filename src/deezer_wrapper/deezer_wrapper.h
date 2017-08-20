@@ -42,11 +42,16 @@ public:
 
     struct track_infos
     {
-        std::string track_title;
-        int track_duration;
+        std::string title;
+        int duration;
         std::string album_title;
         std::string cover_art;
     };
+
+    /*struct track_metadata
+    {
+        int duration;
+    };*/
 
     enum class connect_event
     {
@@ -116,6 +121,7 @@ public:
         virtual void on_player_event( const deezer_wrapper::player_event& event ) { /* EMPTY */ }
         virtual void on_index_progress( int progress_ms ) { /* EMPTY */ }
         virtual void on_render_progress( int progress_ms ) { /* EMPTY */ }
+        virtual void on_track_duration( int duration_ms ) { /* EMPTY */ }
     };
 
 public:

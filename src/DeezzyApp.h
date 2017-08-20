@@ -177,6 +177,7 @@ signals:
     void seeking();
     void bufferProgress( float progress );
     void renderProgress( float progress );
+    void trackDuration( int duration_ms );
 
 	void trackInfosChanged();
 
@@ -184,8 +185,8 @@ private:
     void update_current_track_infos()
     {
         auto& _track_infos = m_deezer_wrapper->current_track_infos();
-        m_current_track_infos->m_title = QString::fromStdString( _track_infos.track_title );
-        m_current_track_infos->m_duration = _track_infos.track_duration;
+        m_current_track_infos->m_title = QString::fromStdString( _track_infos.title );
+        m_current_track_infos->m_duration = _track_infos.duration;
         m_current_track_infos->m_albumTitle = QString::fromStdString( _track_infos.album_title );
         m_current_track_infos->m_coverArtUrl = QString::fromStdString( _track_infos.cover_art );
     }
@@ -289,6 +290,10 @@ private:
             auto p = progress_ms / ( 10.f * m_current_track_infos->m_duration );
             renderProgress( std::min( p, 100.f ) );
         }
+    }
+    void on_track_duration( int duration_ms ) final override
+    {
+        trackDuration( duration_ms );
     }
 private:
 

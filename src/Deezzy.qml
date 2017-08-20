@@ -37,6 +37,8 @@ ApplicationWindow {
     height: 186
     visible: true
 
+    property int currentTrackDuration: 0 // TODO-TMP : Manage with a C++ binding?
+
     signal bufferProgress( int progress )
     signal renderProgress( int progress )
 
@@ -111,7 +113,6 @@ ApplicationWindow {
                 trackAlbum.text = deezzy.trackInfos.albumTitle;
                 coverPic.source = deezzy.trackInfos.coverArtUrl;
                 playPause.source = "icons/pause.png";
-                //totalTime.text = playLogic.msToTime(1000 * deezzy.trackInfos.duration)
             }
 
             onStopped: {
@@ -128,8 +129,14 @@ ApplicationWindow {
 
             onRenderProgress: {
                 console.log("DEEZZY RENDER PROGRESS " + progress.toFixed(2));
-                //lowerWrap.currentTime.text = playLogic.msToTime(player.position)
+                currentTime.text = playLogic.msToTime(progress*appWindow.currentTrackDuration/100)
                 renderProgress(progress);
+            }
+
+            onTrackDuration: {
+                console.log("DEEZZY TRACK DURATION " + (duration_ms/1000));
+                appWindow.currentTrackDuration = duration_ms;
+                totalTime.text = playLogic.msToTime(duration_ms);
             }
 
             onError: {
@@ -336,7 +343,7 @@ ApplicationWindow {
 
                         Text {
                             id: currentTime
-                            //text: playLogic.msToTime(position)
+                            text: '00:00'
                             font.family: appFont.name
                             color: "#dedede"
                             font.pointSize: 18
@@ -353,7 +360,7 @@ ApplicationWindow {
 
                         Text {
                             id: totalTime
-                            //text: playLogic.msToTime(duration)
+                            text: '00:00'
                             font.family: appFont.name
                             color: "#dedede"
                             font.pointSize: 18
