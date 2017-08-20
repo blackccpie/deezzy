@@ -110,6 +110,7 @@ ApplicationWindow {
             onPlaying: {
                 console.log("DEEZZY ONPLAYING");
                 trackTitle.text = deezzy.trackInfos.title;
+                trackArtist.text = deezzy.trackInfos.artist;
                 trackAlbum.text = deezzy.trackInfos.albumTitle;
                 coverPic.source = deezzy.trackInfos.coverArtUrl;
                 playPause.source = "icons/pause.svg";
@@ -325,8 +326,8 @@ ApplicationWindow {
                                     Layout.fillWidth: true
 
                                     Text {
-                                        id: artist
-                                        text: "Artist unavailable"
+                                        id: trackArtist
+                                        text: deezzy.trackInfos.artist ? deezzy.trackInfos.artist : "Artist unavailable"
                                         color: "#eeeeee"
                                         font.family: appFont.name
                                         font.pointSize: 17

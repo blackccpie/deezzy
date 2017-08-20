@@ -43,6 +43,7 @@ public:
     struct track_infos
     {
         std::string title;
+        std::string artist;
         int duration;
         std::string album_title;
         std::string cover_art;

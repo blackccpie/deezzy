@@ -36,22 +36,26 @@ class TrackInfos : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
+    Q_PROPERTY(QString artist READ artist NOTIFY artistChanged)
     Q_PROPERTY(int duration READ duration NOTIFY durationChanged)
     Q_PROPERTY(QString albumTitle READ albumTitle NOTIFY albumTitleChanged)
     Q_PROPERTY(QString coverArtUrl READ coverArtUrl NOTIFY coverArtUrlChanged)
 public:
     TrackInfos( QObject* parent ) : QObject( parent ) {}
     QString title() { return m_title; }
+    QString artist() { return m_artist; }
     int duration() { return m_duration; }
     QString albumTitle() { return m_albumTitle; }
     QString coverArtUrl() { return m_coverArtUrl; }
 signals:
 	void titleChanged();
+    void artistChanged();
     void durationChanged();
 	void albumTitleChanged();
 	void coverArtUrlChanged();
 public:
     QString m_title;
+    QString m_artist;
     int m_duration;
     QString m_albumTitle;
     QString m_coverArtUrl;
@@ -186,6 +190,7 @@ private:
     {
         auto& _track_infos = m_deezer_wrapper->current_track_infos();
         m_current_track_infos->m_title = QString::fromStdString( _track_infos.title );
+        m_current_track_infos->m_artist = QString::fromStdString( _track_infos.artist );
         m_current_track_infos->m_duration = _track_infos.duration;
         m_current_track_infos->m_albumTitle = QString::fromStdString( _track_infos.album_title );
         m_current_track_infos->m_coverArtUrl = QString::fromStdString( _track_infos.cover_art );
