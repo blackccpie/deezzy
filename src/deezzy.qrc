@@ -18,6 +18,7 @@
         <file alias="pause.svg">icons/pause.svg</file>
         <file alias="play-prev.svg">icons/play-prev.svg</file>
         <file alias="heart.svg">icons/heart.svg</file>
+        <file alias="power.svg">icons/power.svg</file>
     </qresource>
     <qresource prefix="/fonts">
         <file alias="OpenSans-Regular.ttf">fonts/OpenSans-Regular.ttf</file>

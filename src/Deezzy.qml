@@ -31,10 +31,10 @@ import Native.DeezzyApp 1.0
 ApplicationWindow {
 
     id: appWindow
-    //flags: Qt.FramelessWindowHint
+    flags: Qt.FramelessWindowHint
 
     width: 1020
-    height: 300
+    height: 250
     visible: true
 
     property int currentTrackDuration: 0 // TODO-TMP : Manage with a C++ binding?
@@ -63,7 +63,7 @@ ApplicationWindow {
         id: playLogic
 
         property int index: -1
-        property var playlist: "dzmedia:///user/18623476/radio" //album/42861141"
+        property var playlist: "dzmedia:///album/42861141"
 
         function init(){
             if(deezzy.playbackState==DeezzyApp.Paused){
@@ -123,8 +123,6 @@ ApplicationWindow {
             onStopped: {
                 console.log("DEEZZY ONSTOPPED");
                 playPause.source = "icons/play.svg";
-        		//if (playLogic.mediaPlayer.status == MediaPlayer.EndOfMedia)
-        		//    playLogic.next();
             }
 
             onBufferProgress: {
@@ -147,11 +145,6 @@ ApplicationWindow {
             onError: {
                 console.log("DEEZZY ONERROR");
             }
-
-        //     onMediaObjectChanged: {
-        //         if (playLogic.mediaPlayer.mediaObject)
-        //             playLogic.mediaPlayer.mediaObject.notifyInterval = 50;
-        //     }
         }
     }
 
@@ -176,20 +169,54 @@ ApplicationWindow {
         Row{
             id: firstRow
             x: 5
-            y: 5
+            y: 10
             width: 1000
-            height: 300
+            height: 250
 
             Rectangle{
-                id: rectangleLogo
-                width: 180
+                id: rectangleFirstRow
+                width: 250
+
+                Image {
+                    id: powerOff
+                    source: "icons/power.svg"
+                    width: 30
+                    height: 30
+                    mipmap: true
+                    anchors.left: parent.left
+                    anchors.top: parent.top
+                    state: "none"
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: Qt.quit();
+                        onPressed: powerOff.state = "pressed"
+                        onReleased: powerOff.state = "none"
+                    }
+                    states: State {
+                        name: "pressed"
+                        when: mouseArea.pressed
+                        PropertyChanges { target: powerOff; scale: 0.8 }
+                    }
+                    transitions: Transition {
+                        //NumberAnimation { properties: "scale"; duration: 100; easing.type: Easing.InOutQuad }
+                    }
+                }
+
+                Rectangle {
+                    id: spacer
+                    width: 800
+                    anchors.left: powerOff.right
+                    anchors.top: parent.top
+                }
+
                 Image {
                     id: deezerLogo
                     source: "images/deezer-logo.png"
+                    x: 100
                     width: 180
                     height: 40
                     mipmap: true
-                    anchors.left: parent.left
+                    anchors.left: spacer.right
                     anchors.top: parent.top
                 }
             }
@@ -197,8 +224,9 @@ ApplicationWindow {
 
         RowLayout{
             x: 5
+            y: 30
             width: 1000
-            height: 300
+            height: 250
 
             ColumnLayout{
                 id: container
