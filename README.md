@@ -16,3 +16,6 @@ $ pulseaudio -D
 ```shell
 $ ./deezzy
 ```
+
+![Deezzy-RPi](http://blackccpie.free.fr/deezzy/deezzy-rpi.jpg)
+
