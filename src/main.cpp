@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
 #ifndef __arm__
-    engine.load(QUrl(QStringLiteral("qrc:/Deezzy_480_320.qml")));
+    engine.load(QUrl(QStringLiteral("qrc:/Deezzy.qml")));
 #else
     engine.load(QUrl(QStringLiteral("qrc:/Deezzy_480_320.qml")));
 #endif

@@ -177,12 +177,29 @@ ApplicationWindow {
                 width: 250
 
                 Image {
+                    id: deezerLogo
+                    source: "images/deezer-logo.png"
+                    width: 180
+                    height: 40
+                    mipmap: true
+                    anchors.left: parent.left
+                    anchors.top: parent.top
+                }
+
+                Rectangle {
+                    id: spacer
+                    width: 255
+                    anchors.left: deezerLogo.right
+                    anchors.top: parent.top
+                }
+
+                Image {
                     id: powerOff
                     source: "icons/power.svg"
                     width: 30
                     height: 30
                     mipmap: true
-                    anchors.left: parent.left
+                    anchors.left: spacer.right
                     anchors.top: parent.top
                     state: "none"
                     MouseArea {
@@ -199,24 +216,6 @@ ApplicationWindow {
                     transitions: Transition {
                         NumberAnimation { properties: "scale"; duration: 100; easing.type: Easing.InOutQuad }
                     }
-                }
-
-                Rectangle {
-                    id: spacer
-                    width: 255
-                    anchors.left: powerOff.right
-                    anchors.top: parent.top
-                }
-
-                Image {
-                    id: deezerLogo
-                    source: "images/deezer-logo.png"
-                    x: 100
-                    width: 180
-                    height: 40
-                    mipmap: true
-                    anchors.left: spacer.right
-                    anchors.top: parent.top
                 }
             }
         }
