@@ -32,7 +32,11 @@ int main(int argc, char *argv[])
 	qmlRegisterType<DeezzyApp>("Native.DeezzyApp", 1, 0, "DeezzyApp");
 
     QQmlApplicationEngine engine;
-    engine.load(QUrl(QStringLiteral("qrc:/Deezzy.qml")));
+#ifndef __arm__
+    engine.load(QUrl(QStringLiteral("qrc:/Deezzy_480_320.qml")));
+#else
+    engine.load(QUrl(QStringLiteral("qrc:/Deezzy_480_320.qml")));
+#endif
 
     return app.exec();
 }

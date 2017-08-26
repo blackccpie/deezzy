@@ -31,10 +31,10 @@ import Native.DeezzyApp 1.0
 ApplicationWindow {
 
     id: appWindow
-    //flags: Qt.FramelessWindowHint
+    flags: Qt.FramelessWindowHint
 
-    width: 1020
-    height: 250
+    width: 480
+    height: 320
     visible: true
 
     property int currentTrackDuration: 0 // TODO-TMP : Manage with a C++ binding?
@@ -165,6 +165,7 @@ ApplicationWindow {
 
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
+        anchors.top: parent.top
 
         Row{
             id: topRow
@@ -202,7 +203,7 @@ ApplicationWindow {
 
                 Rectangle {
                     id: spacer
-                    width: 800
+                    width: 255
                     anchors.left: powerOff.right
                     anchors.top: parent.top
                 }
@@ -220,12 +221,63 @@ ApplicationWindow {
             }
         }
 
+        Row{
+            x: 165
+            y: 60
+
+            Rectangle {
+
+                Item {
+                    Layout.fillWidth: true
+
+                    ColumnLayout {
+                        anchors.fill: parent
+                        Layout.fillWidth: true
+
+                        Text {
+                            id: trackArtist
+                            text: deezzy.trackInfos.artist ? deezzy.trackInfos.artist : "Artist unavailable"
+                            color: "#eeeeee"
+                            font.family: appFont.name
+                            font.pointSize: 16
+                            font.bold: true
+                            style: Text.Raised
+                            styleColor: "#111111"
+                            wrapMode: Text.Wrap
+                        }
+                        Text {
+                            id: trackTitle
+                            text: deezzy.trackInfos.title ? deezzy.trackInfos.title : "Song title unavailable"
+                            color: "#eeeeee"
+                            font.family: appFont.name
+                            font.pointSize: 14
+                            font.bold: true
+                            style: Text.Raised
+                            styleColor: "#111111"
+                            wrapMode: Text.Wrap
+                        }
+                        Text {
+                            id: trackAlbum
+                            text: deezzy.trackInfos.albumTitle ? deezzy.trackInfos.albumTitle : "Album title unavailable"
+                            color: "steelblue"
+                            font.family: appFont.name
+                            font.pointSize: 15
+                            font.bold: true
+                            style: Text.Raised
+                            styleColor: "#111111"
+                            wrapMode: Text.Wrap
+                        }
+                    }
+                }
+            }
+        }
+
         RowLayout{
-            id: bottomRow
+            id: midRow
             x: 5
-            y: 30
-            width: 1000
-            height: 250
+            y: 120
+            width: 480
+            height: 150
 
             ColumnLayout{
                 id: container
@@ -234,7 +286,6 @@ ApplicationWindow {
                     id: wrapper
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.verticalCenter: parent.verticalCenter
-                    anchors.top: parent.top
 
                     Rectangle {
                         id: leftWrapper
@@ -265,12 +316,12 @@ ApplicationWindow {
                             spacing: 25
 
                             Rectangle{
-                                width: 50
+                                width: 40
                             	Image {
                                 	id: prevTrack
                                 	source: "icons/play-prev.svg"
-                                    width: 50
-                                    height: 50
+                                    width: 40
+                                    height: 40
                                     mipmap: true
                                 	anchors.verticalCenter: parent.verticalCenter
                                 	anchors.leftMargin: 20
@@ -293,13 +344,13 @@ ApplicationWindow {
                             }
 
                             Rectangle{
-                                width: 50
+                                width: 40
                                 anchors.verticalCenter: parent.verticalCenter
                                 Image {
                                     id: playPause
                                     source: "icons/play.svg"
-                                    width: 50
-                                    height: 50
+                                    width: 40
+                                    height: 40
                                     mipmap: true
                                     anchors.verticalCenter: parent.verticalCenter
                                     anchors.horizontalCenter: parent.horizontalCenter
@@ -322,12 +373,12 @@ ApplicationWindow {
                             }
 
                             Rectangle{
-                                width: 50
+                                width: 40
                             	Image {
                                 	id: stopTrack
                                 	source: "icons/stop.svg"
-                                    width: 50
-                                    height: 50
+                                    width: 40
+                                    height: 40
                                     mipmap: true
                                 	anchors.verticalCenter: parent.verticalCenter
                                 	state: "none"
@@ -350,12 +401,12 @@ ApplicationWindow {
                             }
 
                             Rectangle{
-                                width: 50
+                                width: 40
                             	Image {
                                 	id: nextTrack
                                 	source: "icons/play-next.svg"
-                                    width: 50
-                                    height: 50
+                                    width: 40
+                                    height: 40
                                     mipmap: true
                                 	anchors.verticalCenter: parent.verticalCenter
                                 	state: "none"
@@ -377,56 +428,13 @@ ApplicationWindow {
                                 }
                             }
 
-                            Item {
-                                Layout.fillWidth: true
-
-                                ColumnLayout {
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    Layout.fillWidth: true
-
-                                    Text {
-                                        id: trackArtist
-                                        text: deezzy.trackInfos.artist ? deezzy.trackInfos.artist : "Artist unavailable"
-                                        color: "#eeeeee"
-                                        font.family: appFont.name
-                                        font.pointSize: 18
-                                        font.bold: true
-                                        style: Text.Raised
-                                        styleColor: "#111111"
-                                        wrapMode: Text.Wrap
-                                    }
-                                    Text {
-                                        id: trackTitle
-                                        text: deezzy.trackInfos.title ? deezzy.trackInfos.title : "Song title unavailable"
-                                        color: "#eeeeee"
-                                        font.family: appFont.name
-                                        font.pointSize: 16
-                                        font.bold: true
-                                        style: Text.Raised
-                                        styleColor: "#111111"
-                                        wrapMode: Text.Wrap
-                                    }
-                                    Text {
-                                        id: trackAlbum
-                                        text: deezzy.trackInfos.albumTitle ? deezzy.trackInfos.albumTitle : "Album title unavailable"
-                                        color: "steelblue"
-                                        font.family: appFont.name
-                                        font.pointSize: 17
-                                        font.bold: true
-                                        style: Text.Raised
-                                        styleColor: "#111111"
-                                        wrapMode: Text.Wrap
-                                    }
-                                }
-                            }
-
                             Rectangle{
-                                width: 30
+                                width: 25
                                 Image {
                                     id: shareTrack
                                     source: "icons/heart.svg"
-                                    width: 30
-                                    height: 30
+                                    width: 25
+                                    height: 25
                                     mipmap: true
                                     anchors.verticalCenter: parent.verticalCenter
                                     state: "none"
@@ -447,40 +455,49 @@ ApplicationWindow {
                                 }
                             }
                         }
-
-                        RowLayout {
-                            id: lowerWrap
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: 40
-                            Layout.leftMargin: 20
-                            spacing: 15
-
-                            Text {
-                                id: currentTime
-                                text: '00:00'
-                                font.family: appFont.name
-                                color: "#dedede"
-                                font.pointSize: 18
-                            }
-
-                            SliderBar{
-                                id: sliderBar
-                                Layout.fillWidth: true
-                                bgImg: "images/slider_background.png"
-                                bufferImg: "images/slider_value_right.png"
-                                progressImg: "images/slider_value_left.png"
-                                knobImg: "images/slider_knob.png"
-                            }
-
-                            Text {
-                                id: totalTime
-                                text: '00:00'
-                                font.family: appFont.name
-                                color: "#dedede"
-                                font.pointSize: 18
-                            }
-                        }
                     }
+                }
+            }
+        }
+
+        RowLayout{
+            id: bottomRow
+            x: 5
+
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: midRow.bottom
+            RowLayout {
+                id: lowerWrap
+                Layout.fillWidth: true
+                Layout.preferredHeight: 40
+                Layout.leftMargin: 10
+                Layout.rightMargin: 10
+                spacing: 15
+
+                Text {
+                    id: currentTime
+                    text: '00:00'
+                    font.family: appFont.name
+                    color: "#dedede"
+                    font.pointSize: 16
+                }
+
+                SliderBar{
+                    id: sliderBar
+                    Layout.fillWidth: true
+                    bgImg: "images/slider_background.png"
+                    bufferImg: "images/slider_value_right.png"
+                    progressImg: "images/slider_value_left.png"
+                    knobImg: "images/slider_knob.png"
+                }
+
+                Text {
+                    id: totalTime
+                    text: '00:00'
+                    font.family: appFont.name
+                    color: "#dedede"
+                    font.pointSize: 16
                 }
             }
         }

@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>Deezzy.qml</file>
+        <file>Deezzy_480_320.qml</file>
         <file>SliderBar.qml</file>
     </qresource>
     <qresource prefix="/images">
