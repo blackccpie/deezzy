@@ -181,6 +181,7 @@ signals:
     void paused();
     void playing();
     void stopped();
+    void loggedIn();
     void error();
     void seeking();
     void bufferProgress( float progress );
@@ -212,6 +213,7 @@ private:
             case deezer_wrapper::connect_event::user_access_token_failed:
                 break;
             case deezer_wrapper::connect_event::user_login_ok:
+                emit loggedIn();
                 break;
             case deezer_wrapper::connect_event::user_login_fail_network_error:
                 break;
@@ -279,6 +281,7 @@ private:
                 emit playing();
                 break;
             case deezer_wrapper::player_event::render_track_removed:
+                emit stopped();
                 break;
             default:
                 break;
