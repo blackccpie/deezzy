@@ -23,7 +23,8 @@ THE SOFTWARE.
 */
 
 #include "deezer_wrapper.h"
-#include "private_user.h"
+
+#include "private/private_user.h"
 
 #include "third_party/json.hpp"
 
