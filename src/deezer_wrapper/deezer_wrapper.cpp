@@ -53,7 +53,7 @@ public:
         m_config.app_id            = m_ctx.app_id.c_str();
         m_config.product_id        = m_ctx.product_id.c_str();
         m_config.product_build_id  = m_ctx.product_build_id.c_str();
-        m_config.user_profile_path = USER_CACHE_PATH;
+        m_config.user_profile_path = deezzy::USER_CACHE_PATH;
         m_config.connect_event_cb  = deezer_wrapper_impl::_static_connect_callback;
 
         std::cout << "--> Application ID : " << m_config.app_id << std::endl;
@@ -116,7 +116,7 @@ public:
 
         /* Calling dz_connect_cache_path_set()
          * is mandatory in order to have the attended behavior */
-        dz_connect_cache_path_set( m_dzconnect, nullptr, nullptr, USER_CACHE_PATH );
+        dz_connect_cache_path_set( m_dzconnect, nullptr, nullptr, deezzy::USER_CACHE_PATH );
 
         m_dzplayer = dz_player_new( m_dzconnect );
         if ( m_dzplayer == nullptr )
@@ -170,7 +170,7 @@ public:
         m_repeat_mode = DZ_QUEUELIST_REPEAT_MODE_OFF;
         m_shuffle_mode = false;
 
-        dzerr = dz_connect_set_access_token( m_dzconnect, nullptr, nullptr, USER_ACCESS_TOKEN );
+        dzerr = dz_connect_set_access_token( m_dzconnect, nullptr, nullptr, deezzy::USER_ACCESS_TOKEN );
         if ( dzerr != DZ_ERROR_NO_ERROR )
         {
             throw deezer_wrapper_exception( "cannot set access token" );
@@ -635,6 +635,11 @@ deezer_wrapper::deezer_wrapper( const std::string& app_id,
 
 deezer_wrapper::~deezer_wrapper()
 {
+}
+
+std::string deezer_wrapper::user_id()
+{
+    return deezzy::USER_ID;
 }
 
 void deezer_wrapper::register_observer( deezer_wrapper::observer* observer )

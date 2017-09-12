@@ -87,6 +87,10 @@ public:
 
     /************ Q_INVOKABLEs ************/
 
+    Q_INVOKABLE QString userID()
+    {
+        return QString::fromStdString( m_deezer_wrapper->user_id() );
+    }
     Q_INVOKABLE bool connect()
     {
         m_deezer_wrapper->register_observer( this );

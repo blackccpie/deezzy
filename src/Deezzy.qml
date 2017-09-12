@@ -63,7 +63,7 @@ ApplicationWindow {
         id: playLogic
 
         property int index: -1
-        property var playlist: "dzradio:///user-18623476"
+        property var playlist: "dzradio:///user-" + deezzy.userID()
 
         function init(){
             if(deezzy.playbackState==DeezzyApp.Paused){

@@ -132,6 +132,8 @@ public:
     				bool print_version );
     ~deezer_wrapper();
 
+    std::string user_id();
+
     void register_observer( deezer_wrapper::observer* observer );
 
     void set_content( const std::string& content );

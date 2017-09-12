@@ -24,8 +24,15 @@ THE SOFTWARE.
 
 #pragma once
 
+namespace deezzy {
+
+// User ID
+constexpr char USER_ID[] =             "XXXXXXXX";
+
 // Sample access token corresponding to a free user account, to be replaced by yours.
-#define USER_ACCESS_TOKEN   "XXXXXXXXXXXXXXXXXXXXXXXXXXX"
+constexpr char USER_ACCESS_TOKEN[] =	"XXXXXXXXXXXXXXXXXXXXXXXXXXX";
 
 // Set the user cache path, This path must already exist.
-#define USER_CACHE_PATH     "/var/tmp/XXXXXXXXXXXXXXXXXX"
+constexpr char USER_CACHE_PATH[] =		"/var/tmp/XXXXXXXXXXXXXXXXXX";
+
+} // namespace deezzy
