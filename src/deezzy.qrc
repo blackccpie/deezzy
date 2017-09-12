@@ -13,6 +13,7 @@
         <file alias="slider_value_right.png">images/slider_value_right.png</file>
     </qresource>
     <qresource prefix="/icons">
+        <file alias="time-lapse.svg">icons/time-lapse.svg</file>
         <file alias="play-next.svg">icons/play-next.svg</file>
         <file alias="play.svg">icons/play.svg</file>
         <file alias="stop.svg">icons/stop.svg</file>

@@ -260,6 +260,23 @@ ApplicationWindow {
                             anchors.verticalCenter: parent.verticalCenter
                             width: 108
                             height: 108
+                            onStatusChanged: {
+                                if (coverPic.status == Image.Ready)
+                                    loadingPic.opacity = 0.
+                                else if (coverPic.status == Image.Loading)
+                                    loadingPic.opacity = 1.
+                            }
+                        }
+
+                        Image {
+                            id: loadingPic
+                            source: "icons/time-lapse.svg"
+                            width: 50
+                            height: 50
+                            mipmap: true
+                            opacity: 0.
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            anchors.verticalCenter: parent.verticalCenter
                         }
                     }
 
