@@ -51,6 +51,8 @@ ApplicationWindow {
         id: deezzy
 
         Component.onCompleted: {
+            sliderBar.setBufferProgress(0)
+            sliderBar.setRenderProgress(0)
             appWindow.bufferProgress.connect(sliderBar.setBufferProgress)
             appWindow.renderProgress.connect(sliderBar.setRenderProgress)
             sliderBar.seek.connect(appWindow.seek)
@@ -123,6 +125,11 @@ ApplicationWindow {
             onStopped: {
                 console.log("DEEZZY ONSTOPPED");
                 playPause.source = "icons/play.svg";
+            }
+
+            onLoggedIn: {
+                console.log("DEEZZY ONLOGGEDIN");
+                controlWrapper.enabled = true;
             }
 
             onBufferProgress: {
@@ -231,7 +238,11 @@ ApplicationWindow {
                 id: container
 
                 RowLayout {
-                    id: wrapper
+                    id: controlWrapper
+
+					enabled: false
+                    opacity: enabled ? 1. : 0.3
+
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.top: parent.top
