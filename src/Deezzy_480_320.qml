@@ -51,6 +51,8 @@ ApplicationWindow {
         id: deezzy
 
         Component.onCompleted: {
+            sliderBar.setBufferProgress(0)
+            sliderBar.setRenderProgress(0)
             appWindow.bufferProgress.connect(sliderBar.setBufferProgress)
             appWindow.renderProgress.connect(sliderBar.setRenderProgress)
             sliderBar.seek.connect(appWindow.seek)
@@ -63,7 +65,7 @@ ApplicationWindow {
         id: playLogic
 
         property int index: -1
-        property var playlist: "dzmedia:///album/42861141"
+        property var playlist: "dzradio:///user-" + deezzy.userID()
 
         function init(){
             if(deezzy.playbackState==DeezzyApp.Paused){
@@ -125,6 +127,11 @@ ApplicationWindow {
                 playPause.source = "icons/play.svg";
             }
 
+            onLoggedIn: {
+                console.log("DEEZZY ONLOGGEDIN");
+                foreground.enabled = true;
+            }
+
             onBufferProgress: {
                 console.log("DEEZZY BUFFER PROGRESS " + progress.toFixed(2));
                 bufferProgress(progress);
@@ -156,6 +163,9 @@ ApplicationWindow {
 
     Rectangle {
         id: foreground
+
+        enabled: false
+        opacity: enabled ? 1. : 0.3
 
         color: "black"
         anchors.verticalCenterOffset: 0
@@ -299,6 +309,23 @@ ApplicationWindow {
                             anchors.verticalCenter: parent.verticalCenter
                             width: 108
                             height: 108
+                            onStatusChanged: {
+                                if (coverPic.status == Image.Ready)
+                                    loadingPic.opacity = 0.
+                                else if (coverPic.status == Image.Loading)
+                                    loadingPic.opacity = 1.
+                            }
+                        }
+
+                        Image {
+                            id: loadingPic
+                            source: "icons/time-lapse.svg"
+                            width: 50
+                            height: 50
+                            mipmap: true
+                            opacity: 0.
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            anchors.verticalCenter: parent.verticalCenter
                         }
                     }
 
