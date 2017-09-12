@@ -42,13 +42,6 @@ private:
         const std::string app_id;
         const std::string product_id;
         const std::string product_build_id;
-        int track_played_count = 0;
-        int activation_count = 0;
-        bool is_shuffle_mode = false;
-        std::string content_url;
-        dz_connect_handle dzconnect = nullptr;
-        dz_player_handle dzplayer = nullptr;
-        dz_queuelist_repeat_mode_t repeat_mode = DZ_QUEUELIST_REPEAT_MODE_OFF;
     };
 public:
     deezer_wrapper_impl(    const std::string& app_id,
@@ -78,112 +71,112 @@ public:
     }
     void set_content( const std::string& content )
     {
-        m_ctx.content_url = content;
-        std::cout << "CHANGE => " << m_ctx.content_url << std::endl;
+        m_content_url = content;
+        std::cout << "CHANGE => " << m_content_url << std::endl;
     }
     void load_content()
     {
-        std::cout << "LOAD => " << m_ctx.content_url << std::endl;
-        dz_player_load( m_ctx.dzplayer, nullptr, nullptr,
-                        m_ctx.content_url.c_str() );
+        std::cout << "LOAD => " << m_content_url << std::endl;
+        dz_player_load( m_dzplayer, nullptr, nullptr,
+                        m_content_url.c_str() );
     }
     std::string get_content()
     {
-        return m_ctx.content_url;
+        return m_content_url;
     }
     bool active()
     {
-        return m_ctx.activation_count > 0;
+        return m_activation_count > 0;
     }
     void connect()
     {
         dz_error_t dzerr = DZ_ERROR_NO_ERROR;
 
-        m_ctx.dzconnect = dz_connect_new( &m_config );
-        if ( m_ctx.dzconnect == nullptr )
+        m_dzconnect = dz_connect_new( &m_config );
+        if ( m_dzconnect == nullptr )
         {
             throw deezer_wrapper_exception( "cannot create dzconnect object" );
         }
 
-        std::cout << "Device ID : " << dz_connect_get_device_id( m_ctx.dzconnect ) << std::endl;
+        std::cout << "Device ID : " << dz_connect_get_device_id( m_dzconnect ) << std::endl;
 
-        dzerr = dz_connect_debug_log_disable( m_ctx.dzconnect );
+        dzerr = dz_connect_debug_log_disable( m_dzconnect );
         if ( dzerr != DZ_ERROR_NO_ERROR )
         {
             throw deezer_wrapper_exception( "cannot disable debug log" );
         }
 
-        dzerr = dz_connect_activate( m_ctx.dzconnect, this );
+        dzerr = dz_connect_activate( m_dzconnect, this );
         if ( dzerr != DZ_ERROR_NO_ERROR )
         {
             throw deezer_wrapper_exception( "cannot activate connection" );
         }
-        m_ctx.activation_count++;
+        m_activation_count++;
 
         /* Calling dz_connect_cache_path_set()
          * is mandatory in order to have the attended behavior */
-        dz_connect_cache_path_set( m_ctx.dzconnect, nullptr, nullptr, USER_CACHE_PATH );
+        dz_connect_cache_path_set( m_dzconnect, nullptr, nullptr, USER_CACHE_PATH );
 
-        m_ctx.dzplayer = dz_player_new( m_ctx.dzconnect );
-        if ( m_ctx.dzplayer == nullptr )
+        m_dzplayer = dz_player_new( m_dzconnect );
+        if ( m_dzplayer == nullptr )
         {
             throw deezer_wrapper_exception( "cannot create dzplayer object" );
         }
 
-        dzerr = dz_player_activate( m_ctx.dzplayer, this );
+        dzerr = dz_player_activate( m_dzplayer, this );
         if ( dzerr != DZ_ERROR_NO_ERROR )
         {
             throw deezer_wrapper_exception( "cannot activate player" );
         }
-        m_ctx.activation_count++;
+        m_activation_count++;
 
-        dzerr = dz_player_set_event_cb( m_ctx.dzplayer, deezer_wrapper_impl::_static_player_callback );
+        dzerr = dz_player_set_event_cb( m_dzplayer, deezer_wrapper_impl::_static_player_callback );
         if ( dzerr != DZ_ERROR_NO_ERROR )
         {
             throw deezer_wrapper_exception( "cannot set event callback" );
         }
 
-        dzerr = dz_player_set_index_progress_cb( m_ctx.dzplayer, deezer_wrapper_impl::_static_index_progress_callback, 1000000/*1s*/ );
+        dzerr = dz_player_set_index_progress_cb( m_dzplayer, deezer_wrapper_impl::_static_index_progress_callback, 1000000/*1s*/ );
         if ( dzerr != DZ_ERROR_NO_ERROR )
         {
             throw deezer_wrapper_exception( "cannot set index progress callback" );
         }
 
-        dzerr = dz_player_set_render_progress_cb( m_ctx.dzplayer, deezer_wrapper_impl::_static_render_progress_callback, 1000000/*1s*/ );
+        dzerr = dz_player_set_render_progress_cb( m_dzplayer, deezer_wrapper_impl::_static_render_progress_callback, 1000000/*1s*/ );
         if ( dzerr != DZ_ERROR_NO_ERROR )
         {
             throw deezer_wrapper_exception( "cannot set render progress callback" );
         }
 
-        dzerr = dz_player_set_metadata_cb( m_ctx.dzplayer, deezer_wrapper_impl::_static_metadata_callback );
+        dzerr = dz_player_set_metadata_cb( m_dzplayer, deezer_wrapper_impl::_static_metadata_callback );
         if ( dzerr != DZ_ERROR_NO_ERROR )
         {
             throw deezer_wrapper_exception( "cannot set metadata callback" );
         }
 
-        dzerr = dz_player_set_output_volume( m_ctx.dzplayer, nullptr, nullptr, 20 );
+        dzerr = dz_player_set_output_volume( m_dzplayer, nullptr, nullptr, 20 );
         if ( dzerr != DZ_ERROR_NO_ERROR )
         {
             throw deezer_wrapper_exception( "cannot set output volume" );
         }
 
-        dzerr = dz_player_set_crossfading_duration( m_ctx.dzplayer, nullptr, nullptr, 3000 );
+        dzerr = dz_player_set_crossfading_duration( m_dzplayer, nullptr, nullptr, 3000 );
         if ( dzerr != DZ_ERROR_NO_ERROR )
         {
             throw deezer_wrapper_exception( "cannot set crossfading duration" );
         }
 
-        m_ctx.repeat_mode = DZ_QUEUELIST_REPEAT_MODE_OFF;
-        m_ctx.is_shuffle_mode = false;
+        m_repeat_mode = DZ_QUEUELIST_REPEAT_MODE_OFF;
+        m_shuffle_mode = false;
 
-        dzerr = dz_connect_set_access_token( m_ctx.dzconnect, nullptr, nullptr, USER_ACCESS_TOKEN );
+        dzerr = dz_connect_set_access_token( m_dzconnect, nullptr, nullptr, USER_ACCESS_TOKEN );
         if ( dzerr != DZ_ERROR_NO_ERROR )
         {
             throw deezer_wrapper_exception( "cannot set access token" );
         }
 
         /* Calling dz_connect_offline_mode(FALSE) is mandatory to force the login */
-        dzerr = dz_connect_offline_mode( m_ctx.dzconnect, nullptr, nullptr, false );
+        dzerr = dz_connect_offline_mode( m_dzconnect, nullptr, nullptr, false );
         if ( dzerr != DZ_ERROR_NO_ERROR )
         {
             throw deezer_wrapper_exception( "cannot enforce mandatory login" );
@@ -191,95 +184,95 @@ public:
     }
     void disconnect()
     {
-        if ( m_ctx.dzplayer )
+        if ( m_dzplayer )
         {
-            std::cout << "-- DEACTIVATE & RELEASE PLAYER @" << m_ctx.dzplayer << " --" << std::endl;
-            dz_player_deactivate( m_ctx.dzplayer, deezer_wrapper_impl::_static_player_on_deactivate, nullptr );
-            dz_object_release( reinterpret_cast<dz_object_handle>( m_ctx.dzplayer ) );
-            m_ctx.dzplayer = nullptr;
+            std::cout << "-- DEACTIVATE & RELEASE PLAYER @" << m_dzplayer << " --" << std::endl;
+            dz_player_deactivate( m_dzplayer, deezer_wrapper_impl::_static_player_on_deactivate, nullptr );
+            dz_object_release( reinterpret_cast<dz_object_handle>( m_dzplayer ) );
+            m_dzplayer = nullptr;
         }
 
-        if ( m_ctx.dzconnect )
+        if ( m_dzconnect )
         {
-            std::cout << "-- DEACTIVATE & RELEASE CONNECT @" << m_ctx.dzconnect << " --" << std::endl;
-            dz_connect_deactivate( m_ctx.dzconnect, deezer_wrapper_impl::_static_connect_on_deactivate, nullptr );
-            dz_object_release( reinterpret_cast<dz_object_handle>( m_ctx.dzconnect ) );
-            m_ctx.dzconnect = nullptr;
+            std::cout << "-- DEACTIVATE & RELEASE CONNECT @" << m_dzconnect << " --" << std::endl;
+            dz_connect_deactivate( m_dzconnect, deezer_wrapper_impl::_static_connect_on_deactivate, nullptr );
+            dz_object_release( reinterpret_cast<dz_object_handle>( m_dzconnect ) );
+            m_dzconnect = nullptr;
         }
     }
     void playback_start()
     {
-        std::cout << "PLAY track n° " << m_ctx.track_played_count << " of => " << m_ctx.content_url << std::endl;
-        dz_player_play( m_ctx.dzplayer, nullptr, nullptr,
+        std::cout << "PLAY track n° " << m_track_played_count << " of => " << m_content_url << std::endl;
+        dz_player_play( m_dzplayer, nullptr, nullptr,
                         DZ_PLAYER_PLAY_CMD_START_TRACKLIST,
                         DZ_INDEX_IN_QUEUELIST_CURRENT );
     }
     void playback_stop()
     {
-        std::cout << "STOP => " << m_ctx.content_url << std::endl;
-        dz_player_stop( m_ctx.dzplayer, nullptr, nullptr );
+        std::cout << "STOP => " << m_content_url << std::endl;
+        dz_player_stop( m_dzplayer, nullptr, nullptr );
     }
     void playback_pause()
     {
-        std::cout << "PAUSE track n° " << m_ctx.track_played_count << " of => " << m_ctx.content_url << std::endl;
-        dz_player_pause( m_ctx.dzplayer, nullptr, nullptr );
+        std::cout << "PAUSE track n° " << m_track_played_count << " of => " << m_content_url << std::endl;
+        dz_player_pause( m_dzplayer, nullptr, nullptr );
     }
     void playback_resume()
     {
-        std::cout << "RESUME track n° " << m_ctx.track_played_count << " of => " << m_ctx.content_url << std::endl;
-        dz_player_resume( m_ctx.dzplayer, nullptr, nullptr );
+        std::cout << "RESUME track n° " << m_track_played_count << " of => " << m_content_url << std::endl;
+        dz_player_resume( m_dzplayer, nullptr, nullptr );
     }
     void playback_seek( int position_ms )
     {
-        std::cout << "SEEK track n° " << m_ctx.track_played_count << " of => " << m_ctx.content_url << " @" << position_ms << "ms" << std::endl;
-        dz_player_seek( m_ctx.dzplayer, nullptr, nullptr, position_ms * 1000 );
+        std::cout << "SEEK track n° " << m_track_played_count << " of => " << m_content_url << " @" << position_ms << "ms" << std::endl;
+        dz_player_seek( m_dzplayer, nullptr, nullptr, position_ms * 1000 );
     }
     void playback_toogle_repeat()
     {
-        switch( m_ctx.repeat_mode )
+        switch( m_repeat_mode )
         {
             case DZ_QUEUELIST_REPEAT_MODE_OFF:
-                m_ctx.repeat_mode = DZ_QUEUELIST_REPEAT_MODE_ONE;
+                m_repeat_mode = DZ_QUEUELIST_REPEAT_MODE_ONE;
                 break;
             case DZ_QUEUELIST_REPEAT_MODE_ONE:
-                m_ctx.repeat_mode = DZ_QUEUELIST_REPEAT_MODE_ALL;
+                m_repeat_mode = DZ_QUEUELIST_REPEAT_MODE_ALL;
                 break;
             case DZ_QUEUELIST_REPEAT_MODE_ALL:
-                m_ctx.repeat_mode = DZ_QUEUELIST_REPEAT_MODE_OFF;
+                m_repeat_mode = DZ_QUEUELIST_REPEAT_MODE_OFF;
                 break;
         }
 
-        std::cout << "REPEAT mode => " << m_ctx.repeat_mode << std::endl;
+        std::cout << "REPEAT mode => " << m_repeat_mode << std::endl;
 
-        dz_player_set_repeat_mode(  m_ctx.dzplayer, nullptr, nullptr,
-                                    m_ctx.repeat_mode );
+        dz_player_set_repeat_mode(  m_dzplayer, nullptr, nullptr,
+                                    m_repeat_mode );
     }
     void playback_toogle_random()
     {
-        m_ctx.is_shuffle_mode = !m_ctx.is_shuffle_mode;
+        m_shuffle_mode = !m_shuffle_mode;
 
-        std::cout << "SHUFFLE mode => " << std::string( m_ctx.is_shuffle_mode ? "ON" : "OFF" ) << std::endl;
+        std::cout << "SHUFFLE mode => " << std::string( m_shuffle_mode ? "ON" : "OFF" ) << std::endl;
 
-        dz_player_enable_shuffle_mode(  m_ctx.dzplayer, nullptr, nullptr,
-                                        m_ctx.is_shuffle_mode );
+        dz_player_enable_shuffle_mode(  m_dzplayer, nullptr, nullptr,
+                                        m_shuffle_mode );
     }
     void playback_next()
     {
-        std::cout << "NEXT => " << m_ctx.content_url << std::endl;
-        dz_player_play( m_ctx.dzplayer, nullptr, nullptr,
+        std::cout << "NEXT => " << m_content_url << std::endl;
+        dz_player_play( m_dzplayer, nullptr, nullptr,
                         DZ_PLAYER_PLAY_CMD_START_TRACKLIST,
                         DZ_INDEX_IN_QUEUELIST_NEXT );
     }
     void playback_previous()
     {
-        std::cout << "PREVIOUS => " << m_ctx.content_url << std::endl;
-        dz_player_play( m_ctx.dzplayer, nullptr, nullptr,
+        std::cout << "PREVIOUS => " << m_content_url << std::endl;
+        dz_player_play( m_dzplayer, nullptr, nullptr,
                         DZ_PLAYER_PLAY_CMD_START_TRACKLIST,
                         DZ_INDEX_IN_QUEUELIST_PREVIOUS );
     }
     void play_audioads()
     {
-        dz_player_play_audioads( m_ctx.dzplayer, nullptr, nullptr );
+        dz_player_play_audioads( m_dzplayer, nullptr, nullptr );
     }
     const deezer_wrapper::track_infos& current_track_infos()
     {
@@ -465,7 +458,7 @@ private:
                     if ( next_dzapiinfo )
                         std::cout << "\tnext:" << next_dzapiinfo << std::endl;
                 }
-                m_ctx.track_played_count++;
+                m_track_played_count++;
                 output_event = player_event::queuelist_track_selected;
                 break;
 
@@ -491,7 +484,7 @@ private:
 
             case DZ_PLAYER_EVENT_RENDER_TRACK_END:
                 std::cout << "(App:" << &m_ctx << ") ==== PLAYER_EVENT ==== RENDER_TRACK_END for idx: " << idx << std::endl;
-                std::cout << "- track_played_count : " << m_ctx.track_played_count << std::endl;
+                std::cout << "- track_played_count : " << m_track_played_count << std::endl;
                 // Detect if we come from from playing an ad, if yes restart automatically the playback.
                 if ( idx == DZ_INDEX_IN_QUEUELIST_INVALID )
                 {
@@ -547,8 +540,8 @@ private:
                                     dz_error_t status,
                                     dz_object_handle result)
     {
-        m_ctx.activation_count--;
-        std::cout << "CONNECT deactivated - c = " << m_ctx.activation_count << " with status = " << status << std::endl;
+        m_activation_count--;
+        std::cout << "CONNECT deactivated - c = " << m_activation_count << " with status = " << status << std::endl;
     }
     static void _static_player_on_deactivate(   void* delegate,
                                                 void* operation_userdata,
@@ -561,8 +554,8 @@ private:
                                 dz_error_t status,
                                 dz_object_handle result )
     {
-        m_ctx.activation_count--;
-        std::cout << "PLAYER deactivated - c = " << m_ctx.activation_count << " with status = " << status << std::endl;
+        m_activation_count--;
+        std::cout << "PLAYER deactivated - c = " << m_activation_count << " with status = " << status << std::endl;
     }
     static void _static_index_progress_callback(    dz_player_handle handle,
                                                     dz_useconds_t progress,
@@ -613,6 +606,16 @@ private:
         }
     }
 private:
+
+    int m_track_played_count = 0;
+    int m_activation_count = 0;
+    bool m_shuffle_mode = false;
+
+    std::string m_content_url;
+
+    dz_connect_handle m_dzconnect = nullptr;
+    dz_player_handle m_dzplayer = nullptr;
+    dz_queuelist_repeat_mode_t m_repeat_mode = DZ_QUEUELIST_REPEAT_MODE_OFF;
 
     deezer_wrapper::observer* m_observer = nullptr;
     deezer_wrapper::track_infos m_current_track_infos = {};
