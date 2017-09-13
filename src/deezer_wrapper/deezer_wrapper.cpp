@@ -217,6 +217,10 @@ public:
     {
         std::cout << "PAUSE track n° " << m_track_played_count << " of => " << m_content_url << std::endl;
         dz_player_pause( m_dzplayer, nullptr, nullptr );
+
+        // This infamous hack is here because of this bug : https://github.com/deezer/native-sdk-samples/issues/20
+        if ( m_observer )
+            m_observer->on_player_event( player_event::render_track_paused );
     }
     void playback_resume()
     {

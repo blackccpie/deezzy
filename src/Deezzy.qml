@@ -51,11 +51,11 @@ ApplicationWindow {
         id: deezzy
 
         Component.onCompleted: {
-            sliderBar.setBufferProgress(0)
-            sliderBar.setRenderProgress(0)
-            appWindow.bufferProgress.connect(sliderBar.setBufferProgress)
-            appWindow.renderProgress.connect(sliderBar.setRenderProgress)
-            sliderBar.seek.connect(appWindow.seek)
+            sliderBar.setBufferProgress(0);
+            sliderBar.setRenderProgress(0);
+            appWindow.bufferProgress.connect(sliderBar.setBufferProgress);
+            appWindow.renderProgress.connect(sliderBar.setRenderProgress);
+            sliderBar.seek.connect(appWindow.seek);
             deezzy.connect();
         }
         Component.onDestruction: deezzy.disconnect();
@@ -65,6 +65,7 @@ ApplicationWindow {
         id: playLogic
 
         property int index: -1
+        //property var playlist: "dzmedia:///album/12977824"
         property var playlist: "dzradio:///user-" + deezzy.userID()
 
         function init(){
@@ -125,6 +126,8 @@ ApplicationWindow {
             onStopped: {
                 console.log("DEEZZY ONSTOPPED");
                 playPause.source = "icons/play.svg";
+                sliderBar.setRenderProgress(0);
+                currentTime.text = '00:00';
             }
 
             onLoggedIn: {
