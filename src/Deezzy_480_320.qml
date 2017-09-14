@@ -348,8 +348,8 @@ ApplicationWindow {
                                 id: upperWrap
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 100
-                                Layout.leftMargin: 20
-                                spacing: 25
+                                Layout.leftMargin: 10
+                                spacing: 22
 
                                 Rectangle{
                                     width: 40
@@ -465,9 +465,9 @@ ApplicationWindow {
                                 }
 
                                 Rectangle{
-                                    width: 25
+                                    width: 30
                                     Image {
-                                        id: shareTrack
+                                        id: loveTrack
                                         source: "icons/heart.svg"
                                         width: 25
                                         height: 25
@@ -477,17 +477,54 @@ ApplicationWindow {
 
                                         MouseArea {
                                             anchors.fill: parent
-                                            onPressed: shareTrack.state = "pressed"
-                                            onReleased: shareTrack.state = "none"
+                                            onPressed: loveTrack.state = "pressed"
+                                            onReleased: loveTrack.state = "none"
                                         }
                                         states: State {
                                             name: "pressed"
                                             when: mouseArea.pressed
-                                            PropertyChanges { target: shareTrack; scale: 0.8 }
+                                            PropertyChanges { target: loveTrack; scale: 0.8 }
                                         }
                                         transitions: Transition {
                                             NumberAnimation { properties: "scale"; duration: 100; easing.type: Easing.InOutQuad }
                                         }
+                                    }
+                                }
+
+                                Rectangle{
+                                    width: 30
+                                    Image {
+                                        id: banTrack
+                                        source: "icons/heart.svg"
+                                        width: 25
+                                        height: 25
+                                        mipmap: true
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        state: "none"
+
+                                        MouseArea {
+                                            anchors.fill: parent
+                                            onPressed: banTrack.state = "pressed"
+                                            onReleased: banTrack.state = "none"
+                                        }
+                                        states: State {
+                                            name: "pressed"
+                                            when: mouseArea.pressed
+                                            PropertyChanges { target: banTrack; scale: 0.8 }
+                                        }
+                                        transitions: Transition {
+                                            NumberAnimation { properties: "scale"; duration: 100; easing.type: Easing.InOutQuad }
+                                        }
+                                    }
+
+                                    Image {
+                                        id: cross
+                                        source: "icons/cross.svg"
+                                        width: 25
+                                        height: 25
+                                        mipmap: true
+                                        anchors.horizontalCenter: banTrack.horizontalCenter
+                                        anchors.verticalCenter: banTrack.verticalCenter
                                     }
                                 }
                             }
