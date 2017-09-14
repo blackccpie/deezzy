@@ -157,6 +157,9 @@ public:
     void playback_next();
     void playback_previous();
 
+    void playback_like();
+    void playback_dislike();
+
     void play_audioads();
 
     const track_infos& current_track_infos();

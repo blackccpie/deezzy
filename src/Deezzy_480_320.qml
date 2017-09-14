@@ -96,6 +96,16 @@ ApplicationWindow {
             deezzy.previous();
         }
 
+        function love(){
+            //deezzy.love();
+            console.log("LOVE TRACK NOT IMPLEMENTED YET :-(");
+        }
+
+        function ban(){
+            //deezzy.dislike();
+            console.log("BAN TRACK NOT IMPLEMENTED YET :-(");
+        }
+
         function msToTime(duration) {
             var seconds = parseInt((duration/1000)%60);
             var minutes = parseInt((duration/(1000*60))%60);
@@ -477,6 +487,7 @@ ApplicationWindow {
 
                                         MouseArea {
                                             anchors.fill: parent
+                                            onClicked: playLogic.love()
                                             onPressed: loveTrack.state = "pressed"
                                             onReleased: loveTrack.state = "none"
                                         }
@@ -504,6 +515,7 @@ ApplicationWindow {
 
                                         MouseArea {
                                             anchors.fill: parent
+                                            onClicked: playLogic.ban()
                                             onPressed: banTrack.state = "pressed"
                                             onReleased: banTrack.state = "none"
                                         }

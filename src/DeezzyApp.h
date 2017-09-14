@@ -155,6 +155,18 @@ public:
 
         return true;
     }
+    Q_INVOKABLE bool like()
+    {
+        m_deezer_wrapper->playback_like();
+
+        return true;
+    }
+    Q_INVOKABLE bool dislike()
+    {
+        m_deezer_wrapper->playback_dislike();
+
+        return true;
+    }
 
     /************ Q_PROPERTYs ************/
 

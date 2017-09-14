@@ -275,6 +275,22 @@ public:
                         DZ_PLAYER_PLAY_CMD_START_TRACKLIST,
                         DZ_INDEX_IN_QUEUELIST_PREVIOUS );
     }
+    void playback_like()
+    {
+        std::cout << "LIKE => " << m_content_url << std::endl;
+        //request = dz_api_request_new(DZ_API_CMD_POST, "user/<user_id>/tracks");
+        //result = dz_api_request_add_string_parameter(request, "track_id","<track_id_value>");
+        //dz_api_request_processing_async(...);
+    }
+    void playback_dislike()
+    {
+        // TODO : can only apply to the listening of a radio!
+
+        std::cout << "DISLIKE => " << m_content_url << std::endl;
+        dz_player_play( m_dzplayer, nullptr, nullptr,
+                        DZ_PLAYER_PLAY_CMD_DISLIKE,
+                        DZ_INDEX_IN_QUEUELIST_NEXT );
+    }
     void play_audioads()
     {
         dz_player_play_audioads( m_dzplayer, nullptr, nullptr );
@@ -724,6 +740,16 @@ void deezer_wrapper::playback_next()
 void deezer_wrapper::playback_previous()
 {
     m_pimpl->playback_previous();
+}
+
+void deezer_wrapper::playback_like()
+{
+    m_pimpl->playback_like();
+}
+
+void deezer_wrapper::playback_dislike()
+{
+    m_pimpl->playback_dislike();
 }
 
 void deezer_wrapper::play_audioads()
