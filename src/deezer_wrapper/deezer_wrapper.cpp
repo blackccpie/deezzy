@@ -465,6 +465,7 @@ private:
                         {
                             using json = nlohmann::json;
                             auto json_infos = json::parse( selected_dzapiinfo );
+                            m_current_track_infos.id = json_infos["id"].get<int>();
                             m_current_track_infos.title = json_infos["title"].get<std::string>();
                             m_current_track_infos.artist = json_infos["artist"]["name"].get<std::string>();
                             m_current_track_infos.duration = json_infos["duration"].get<int>();

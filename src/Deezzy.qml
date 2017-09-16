@@ -97,7 +97,7 @@ ApplicationWindow {
         }
 
         function love(){
-            //deezzy.love();
+            //deezzy.like();
             console.log("LOVE TRACK NOT IMPLEMENTED YET :-(");
         }
 
