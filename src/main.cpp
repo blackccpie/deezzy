@@ -24,9 +24,21 @@ THE SOFTWARE.
 
 #include "DeezzyApp.h"
 
-int main(int argc, char *argv[])
+char* get_option( char ** begin, char ** end, const std::string& option )
 {
-    QGuiApplication app(argc, argv);
+    auto** itr = std::find( begin, end, option );
+    if ( itr != end && ++itr != end )
+    {
+        return *itr;
+    }
+    return nullptr;
+}
+
+int main( int argc, char *argv[] )
+{
+    auto* playlist = get_option( argv, argv+argc, "-p" );
+
+    QGuiApplication app( argc, argv );
 
 	qRegisterMetaType<TrackInfos*>("TrackInfos*");
 	qmlRegisterType<DeezzyApp>("Native.DeezzyApp", 1, 0, "DeezzyApp");
@@ -37,6 +49,13 @@ int main(int argc, char *argv[])
 #else
     engine.load(QUrl(QStringLiteral("qrc:/Deezzy_480_320.qml")));
 #endif
+
+    if ( playlist )
+    {
+        auto* rootObject = engine.rootObjects().first();
+        auto* deezzyObject = rootObject->findChild<DeezzyApp*>("deezzy");
+        deezzyObject->setPlaylist( playlist );
+    }
 
     return app.exec();
 }

@@ -49,6 +49,7 @@ ApplicationWindow {
     DeezzyApp
     {
         id: deezzy
+        objectName: "deezzy"
 
         Component.onCompleted: {
             sliderBar.setBufferProgress(0);
@@ -65,8 +66,7 @@ ApplicationWindow {
         id: playLogic
 
         property int index: -1
-        //property var playlist: "dzmedia:///album/12977824"
-        property var playlist: "dzradio:///user-" + deezzy.userID()
+        property var playlist: deezzy.defaultPlaylist()
 
         function init(){
             if(deezzy.playbackState==DeezzyApp.Paused){
@@ -77,7 +77,7 @@ ApplicationWindow {
             	deezzy.pause();
             }else if(deezzy.playbackState==DeezzyApp.Stopped){
                 console.log("DEEZZY STATE IS STOPPED");
-                deezzy.content = playlist; // TODO-TMP
+                deezzy.content = playlist;
                 deezzy.play();
             }else {
                 console.log("DEEZZY STATE IS UNKNOWN");
@@ -164,6 +164,10 @@ ApplicationWindow {
 
             onError: {
                 console.log("DEEZZY ONERROR");
+            }
+
+            onPlaylistChanged: {
+                playLogic.playlist = playlist;
             }
         }
     }

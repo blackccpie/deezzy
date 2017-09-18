@@ -29,7 +29,7 @@ THE SOFTWARE.
 #include <QGuiApplication>
 
 #define DEEZZY_APPLICATION_ID      "247082"	// SET YOUR APPLICATION ID
-#define DEEZZY_APPLICATION_NAME    "Deezzy" 	// SET YOUR APPLICATION NAME
+#define DEEZZY_APPLICATION_NAME    "Deezzy" // SET YOUR APPLICATION NAME
 #define DEEZZY_APPLICATION_VERSION "00001"	// SET YOUR APPLICATION VERSION
 
 class TrackInfos : public QObject
@@ -85,11 +85,16 @@ public:
     {
     }
 
+    void setPlaylist( QString playlist )
+    {
+        emit playlistChanged( playlist );
+    }
+
     /************ Q_INVOKABLEs ************/
 
-    Q_INVOKABLE QString userID()
+    Q_INVOKABLE QString defaultPlaylist()
     {
-        return QString::fromStdString( m_deezer_wrapper->user_id() );
+        return "dzradio:///user-" + QString::fromStdString( m_deezer_wrapper->user_id() );
     }
     Q_INVOKABLE bool connect()
     {
@@ -199,6 +204,7 @@ signals:
     void bufferProgress( float progress );
     void renderProgress( float progress );
     void trackDuration( int duration_ms );
+    void playlistChanged( QString playlist );
 
 	void trackInfosChanged();
 
