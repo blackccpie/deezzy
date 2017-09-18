@@ -40,3 +40,4 @@ target_architecture(CMAKE_SYSTEM_PROCESSOR)
 message("Building on processor architecture : ${CMAKE_SYSTEM_PROCESSOR}")
 
 add_subdirectory(src)
+add_subdirectory(tests)

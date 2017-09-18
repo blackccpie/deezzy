@@ -25,7 +25,9 @@ THE SOFTWARE.
 #include "deezer_wrapper/deezer_wrapper.h"
 
 #include <algorithm>
+#include <condition_variable>
 #include <iostream>
+#include <mutex>
 
 #define TEST_PLAYER_APPLICATION_ID      "247082"	// SET YOUR APPLICATION ID
 #define TEST_PLAYER_APPLICATION_NAME    "Deezzy"    // SET YOUR APPLICATION NAME
@@ -47,8 +49,45 @@ bool leave()
 {
     char c;
     std::cin >> std::noskipws >> c;
-    return c == 'Q';
+    return c == 'q';
 }
+
+class auto_reset_event
+{
+public:
+
+    auto_reset_event() = default;
+    auto_reset_event( const auto_reset_event& ) = delete;
+    auto_reset_event& operator=( const auto_reset_event& ) = delete;
+
+    void set()
+    {
+        std::lock_guard<std::mutex> lock( m_protect );
+        m_flag = true;
+        m_signal.notify_one();
+    }
+    void reset()
+    {
+        std::lock_guard<std::mutex> lock( m_protect );
+        m_flag = false;
+    }
+
+    void wait_one()
+    {
+        std::unique_lock<std::mutex> lock( m_protect );
+        while( !m_flag )
+            m_signal.wait( lock );
+        m_flag = false;
+    }
+
+private:
+
+    bool m_flag = false;
+    std::mutex m_protect;
+    std::condition_variable m_signal;
+};
+
+auto_reset_event ars_login_ok;
 
 class my_observer : public deezer_wrapper::observer
 {
@@ -66,6 +105,7 @@ class my_observer : public deezer_wrapper::observer
                 case deezer_wrapper::connect_event::user_access_token_failed:
                     break;
                 case deezer_wrapper::connect_event::user_login_ok:
+                    ars_login_ok.set();
                     break;
                 case deezer_wrapper::connect_event::user_login_fail_network_error:
                     break;
@@ -151,6 +191,9 @@ int main( int argc, char *argv[] )
 
     dz_wrapper.register_observer( &player_observer );
     dz_wrapper.connect();
+
+    ars_login_ok.wait_one(); // wait for log in success
+
     dz_wrapper.set_content( playlist ? std::string( playlist ) : ( "dzradio:///user-" + dz_wrapper.user_id() ) );
     dz_wrapper.load_content();
 
