@@ -24,6 +24,8 @@ THE SOFTWARE.
 
 #include "DeezzyApp.h"
 
+//#define DEEZZY_HALT_ON_EXIT
+
 char* get_option( char ** begin, char ** end, const std::string& option )
 {
     auto** itr = std::find( begin, end, option );
@@ -57,5 +59,9 @@ int main( int argc, char *argv[] )
         deezzyObject->setPlaylist( playlist );
     }
 
-    return app.exec();
+    app.exec();
+
+#if defined(__arm__) && defined(DEEZZY_HALT_ON_EXIT)
+    system( "sudo halt");
+#endif
 }
