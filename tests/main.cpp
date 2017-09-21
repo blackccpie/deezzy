@@ -177,6 +177,7 @@ class my_observer : public deezer_wrapper::observer
         }
         void on_render_progress( int progress_ms ) final override
         {
+            std::cout << "render progress : " << progress_ms << std::endl;
         }
         void on_track_duration( int duration_ms ) final override
         {
