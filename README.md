@@ -25,7 +25,7 @@ $ unzip deezer-native-sdk-v1.2.10.zip
 $ git clone https://github.com/blackccpie/deezzy.git
 ```
 
-2. Register your application [here](http://developers.deezer.com) and get your access token following [this](http://developers.deezer.com/api/oauth) procedure. With these infos, update the `private_user.h` header with your `USER_ID`, `USER_ACCESS_TOKEN` and the `USER_CACHE_PATH` of your choice.
+2. Register your application [here](http://developers.deezer.com) and get your access token following [this](http://developers.deezer.com/api/oauth) procedure (use following permissions : `basic_access,email,manage_library`). With these infos, update the `private_user.h` header with your `USER_ID`, `USER_ACCESS_TOKEN` and the `USER_CACHE_PATH` of your choice.
 ```shell
 $ nano deezzy/src/private/private_user.h
 ```
