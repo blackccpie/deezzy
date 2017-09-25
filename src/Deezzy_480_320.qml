@@ -102,8 +102,7 @@ ApplicationWindow {
         }
 
         function ban(){
-            //deezzy.dislike();
-            console.log("BAN TRACK NOT IMPLEMENTED YET :-(");
+            deezzy.dislike();
         }
 
         function msToTime(duration) {
@@ -168,6 +167,7 @@ ApplicationWindow {
 
             onPlaylistChanged: {
                 playLogic.playlist = playlist;
+                banRect.enabled = playlist.contains( "user" );
             }
         }
     }
@@ -479,6 +479,12 @@ ApplicationWindow {
                                 }
 
                                 Rectangle{
+
+                                    id: loveRect
+
+                                    enabled: false // NOT IMPLEMENTED YET
+                                    opacity: enabled ? 1. : 0.3
+
                                     width: 30
                                     Image {
                                         id: loveTrack
@@ -507,6 +513,12 @@ ApplicationWindow {
                                 }
 
                                 Rectangle{
+
+                                    id: banRect
+
+                                    enabled: true
+                                    opacity: enabled ? 1. : 0.3
+
                                     width: 30
                                     Image {
                                         id: banTrack
