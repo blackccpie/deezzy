@@ -14,6 +14,8 @@ Lightweight Qml/C++ Deezer Player using _Deezer Native SDK_ (amongst other plato
 Deezzy has been developped and initially tested on an Ubuntu 16.04LTS box, and then successfully built and tested on a Raspberry Pi 2 with a Tontec 3.5 inches touchscreen.
 As far as the _Deezer Native SDK_ and _Qt SDK_ are crossplatforms, deezzy should be easily portable to Windows/MacOS.
 
+![Deezzy-RPi](http://blackccpie.free.fr/deezzy/deezzy-rpi.jpg)
+
 ## Building and Running on the Raspberry Pi:
 
 **!! First of all you need a Deezer user account in order to get a valid user id!!!**
@@ -59,4 +61,8 @@ $ ./deezzy
 $ ./deezzy dzmedia:///album/659384
 ```
 
-![Deezzy-RPi](http://blackccpie.free.fr/deezzy/deezzy-rpi.jpg)
+## Experimental Raspbian Docker support:
+
+I made some initial tests to run *deezzy* in a docker container, to simplify deployment and dependencies management.
+In the `docker` directory you will find some usefull scripts to build and run an image containing prebuilt *deezzy*.
+For now the gui part is handled, but the pulseaudio part is not functional, so still no sound for now :-(
