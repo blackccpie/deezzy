@@ -27,14 +27,15 @@ $ unzip deezer-native-sdk-v1.2.10.zip
 $ git clone https://github.com/blackccpie/deezzy.git
 ```
 
-2. Register your application [here](http://developers.deezer.com) and get your access token following [this](http://developers.deezer.com/api/oauth) procedure (use following permissions : `basic_access,email,manage_library`). With these infos, update the `private_user.h` header with your `USER_ID`, `USER_ACCESS_TOKEN` and the `USER_CACHE_PATH` of your choice.
+2. Register your application [here](http://developers.deezer.com) if you want to have your own app id, or keep the _deezzy_ app id (_"247082"_), and authorize your app by getting your access token following [this](http://developers.deezer.com/api/oauth) procedure (use following permissions : `basic_access,email,manage_library`). With these infos, update the `private_user.h` header with your `USER_ID`, `USER_ACCESS_TOKEN` and the `USER_CACHE_PATH` of your choice.
 ```shell
 $ nano deezzy/src/private/private_user.h
 ```
 
-3. make sure you have Qt/Qml prerequisites installed:
+3. make sure you have Qt/Qml and pulseaudio prerequisites installed:
 ```shell
 $ sudo apt-get install qt5-qmake qt5-default qtdeclarative5-dev qml-module-qtquick-controls qml-module-qtquick-layouts
+$ sudo apt-get install libpulse-dev
 ```
 
 4. run rpi build script (_requires CMake and GCC6_):
