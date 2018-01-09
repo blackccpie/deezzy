@@ -66,4 +66,4 @@ $ ./deezzy dzmedia:///album/659384
 
 I made some initial tests to run *deezzy* in a docker container, to simplify deployment and dependencies management.
 In the `docker` directory you will find some usefull scripts to build and run an image containing prebuilt *deezzy*.
-For now the gui part is handled, but the pulseaudio part is not functional, so still no sound for now :-(
+For now the gui/x11 part is handled, the pulseaudio part is handled too thanks to [this project](https://github.com/TheBiggerGuy/docker-pulseaudio-example), but there is still a strange bug that seems to "freeze" track play when a new track is starting.
