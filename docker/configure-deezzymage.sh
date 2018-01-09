@@ -2,4 +2,3 @@
 
 echo "RUNNING DEEZZY!"
 ./deezzy/bin/deezzy
-

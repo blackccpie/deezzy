@@ -1,10 +1,10 @@
 #!/bin/sh
 
-#set -x
+set -x
 
 USER_UID=$(id -u)
 
-pulseaudio -k && pulseaudio --start
+pulseaudio --start
 
 xhost +local:docker
 docker run	--rm -ti \
