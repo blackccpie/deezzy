@@ -58,6 +58,8 @@ $ pulseaudio -D
 ```shell
 $ ./deezzy
 ```
+You can found the binary in /home/pi/deezzy/bin/, and run `./deezzy` in the correct folder to start streaming.
+
 ```shell
 $ ./deezzy dzmedia:///album/659384
 ```
