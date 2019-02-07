@@ -1,3 +1,5 @@
+!!! **IMPORTANT** : PLEASE NOTE DEEZER HAS STOPPED SUPPORTING THE DEEZER NATIVE SDK !!!
+
 # deezzy
 Lightweight Qml/C++ Deezer Player using _Deezer Native SDK_ (amongst other platorms, it supports ARM Linux).
 
